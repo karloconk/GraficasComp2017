@@ -1,6 +1,8 @@
 #include <iostream>
 using namespace std;
 
+//Autor = José Karlo Hurtado Corona A01374526
+
 int PerimetroRectangulo(int base, int altura)
 {
 	return 2 * (base + altura);
