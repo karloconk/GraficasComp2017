@@ -1,7 +1,11 @@
 #include <iostream>
 using namespace std;
+/*********************************************************
+Materia: Gráficas Computacionales
+Fecha: 08 de Agosto del 2017
+Autor: A01374526 José Karlo Hurtado Corona
+*********************************************************/
 
-//Autor = José Karlo Hurtado Corona A01374526
 
 int PerimetroRectangulo(int base, int altura)
 {
