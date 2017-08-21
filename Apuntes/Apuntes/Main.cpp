@@ -3,12 +3,59 @@
 #include <iostream>
 #include "Circle.h"
 #include "Rectangle.h"
+#include <string>
+#include <vector> 
+#include <glm/glm.hpp>
+
+//manager al que le vamos a asociar todos los VBOs
+GLuint vao;
+
+void Initialize() 
+{
+	//---------+-----------------------------------------------+-------------
+	// creando toda la memoria una sola vez al inicio de la vida del programa.
+	
+	//Creacion del atributo de posiciones de los vertices 
+	// lista de vec2
+	//CLARAMENTE en el CPU y RAM
+	std::vector<glm::vec2> positions;
+	positions.push_back(glm::vec2(-0.5f,-0.5f));
+	positions.push_back(glm::vec2(0.5f, -0.5f));
+	positions.push_back(glm::vec2(-0.5f, 0.5f));
+	positions.push_back(glm::vec2(0.5f, 0.5f));
+	
+	//queremis generar un manager
+	glGenVertexArrays(1,&vao);
+	//utilizar el VAO
+	glBindVertexArray(vao);
+
+	//Identificador del VBO de posiciones
+	GLuint positionsVBO;
+	//Creacion del VBO de posiciones
+	glGenBuffers(1,&positionsVBO);
+	//Lo activamos para poder utilizarlo
+	glBindBuffer(GL_ARRAY_BUFFER, positionsVBO);
+	//Creamos la memoria y la inicializamos con lis datos del atributo de posiciones
+	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2)*positions.size(),positions.data(), GL_STATIC_DRAW);
+	//Activamos el atributo en la tarjeta de video 
+	glEnableVertexAttribArray(0);
+	//Configuramos los datos del atributo en la tarjeta de video
+	glVertexAttribPointer(0,2, GL_FLOAT, GL_FALSE,0, nullptr);
+	//YA no vamos a utilizar este VBO en este momento
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	//Desactivamos el MNGR
+	glBindVertexArray(0);
+
+}
 
 void GameLoop() 
 {
+	//Limpiamos el buffer de color y de profundidad
+	//siempre hcerlo alinicio del frame
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	// WARNING OPENGL VIEJITO DEPRECATED
+	/* WARNING OPENGL VIEJITO DEPRECATED------------
 	glBegin(GL_TRIANGLES);
 	glColor3f(1.0f, 0.0f, 0.0f);
 	glVertex2f(-1.0f, -1.0f);
@@ -17,7 +64,21 @@ void GameLoop()
 	glColor3f(0.0f, 0.0f, 1.0f);
 	glVertex2f(0.0f, 1.0f);
 	glEnd();
+	END WARNING------------------------------------
+	*/
+
+	//activamos el manager y se activan los dbos asociados automaticamente
+	glBindVertexArray(vao);
+
+	//metodo, desde cual y cuantos verticesa dibujar
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	
+	//MGMT DIES
+	glBindVertexArray(0);
+
+	//Cuando terminamos de renderear, cambiampos buffers
 	glutSwapBuffers();
+	
 }
 
 using namespace std;
@@ -34,8 +95,10 @@ int main(int argc, char* argv[])
 	//en donde se dibuja
 	glutInit(&argc, argv);
 	//INICIA EL CONTEXTO DE OPENGL; ESTO SON SUS CAPACIDADES GRAFICAS
-	//En este caso se usa pipeline clasico
-	glutInitContextProfile(GLUT_COMPATIBILITY_PROFILE);
+	//En este caso se usa pipeline Programable
+	glutInitContextProfile(GLUT_CORE_PROFILE);
+	//SOLICITANDO VERSION 4.4 DE GL 
+	glutInitContextVersion(4,4);
 	glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE,GLUT_ACTION_GLUTMAINLOOP_RETURNS);
 	//freeglut nos permite configurar eventos que ocurren en la ventana
 	//nos interesa cuando alguien cierra la ventana, en ese caso se deja de renderear la escena.
@@ -58,9 +121,14 @@ int main(int argc, char* argv[])
 	//este es el color por default en el buffer del color
 	glClearColor(1.0f,1.0f,0.5f,1.0f);
 
+	std::cout << glGetString(GL_VERSION) << std::endl;
+
+	//config inicial del programa.
+	Initialize();
+
 	//Inicia la aplicación, el main se pausa en esta linea hasta que se cierre la ventana
 	glutMainLoop();
-
+	   
 	/*-------------------------------------------------------------------------------------------------------
 	cout << "Circle    ++++++++++++++++++++++++++++++++++++++" << endl;
 	//Costructor basico;
