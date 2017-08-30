@@ -16,6 +16,9 @@
     <Filter Include="Source Files\clase2">
       <UniqueIdentifier>{7fbd073f-a168-4087-a7b3-65284c168e0b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Shaders">
+      <UniqueIdentifier>{bc860171-8ec7-41c7-8679-b4ecbc4f6c75}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Circle.h">
@@ -25,6 +28,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Employee.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="InputFile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -41,5 +47,16 @@
     <ClCompile Include="Employee.cpp">
       <Filter>Source Files\clase2</Filter>
     </ClCompile>
+    <ClCompile Include="InputFile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Default.vert">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="Default.frag">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
