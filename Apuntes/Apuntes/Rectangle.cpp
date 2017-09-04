@@ -2,6 +2,7 @@
 #include "Rectangle.h"
 
 using namespace std;
+
 /*********************************************************
 Materia: Gráficas Computacionales
 Fecha: 14 de Agosto del 2017

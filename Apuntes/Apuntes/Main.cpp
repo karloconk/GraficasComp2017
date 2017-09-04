@@ -23,17 +23,60 @@ void Initialize()
 	// lista de vec2
 	//CLARAMENTE en el CPU y RAM
 	std::vector<glm::vec2> positions;
+	/*
 	positions.push_back(glm::vec2(0.5f, -0.5f));
 	positions.push_back(glm::vec2(0.5f, 0.5f));
 	positions.push_back(glm::vec2(-0.5f, -0.5f));
 	positions.push_back(glm::vec2(-0.5f, 0.5f));
+	*/
+	double x = 0;
+	double y = 0;
+	positions.push_back(glm::vec2(0.0f, 0.0f));
+
+	for(int i = 0; i < 361 ; i++)
+	{
+		x = 1*(glm::cos(glm::radians((float)(i+1))));
+		y = 1*(glm::sin(glm::radians((float)(i+1))));
+
+		positions.push_back(glm::vec2(x, y));
+	}
+	
 
 	std::vector<glm::vec3> colors;
+	int u = 2;
+	float Rr = 0.0f;
+	float Gg = 0.0f;
+	float Bb = 0.0f;
+	for(int i = 0; i < 362 ; i++)
+	{
+		if (i == 0)
+		{
+			colors.push_back(glm::vec3(1.0f, 1.0f, 1.0f));
+		}
+		else 
+		{
+			if (i<= 120) 
+			{ // RR
+				//colors.push_back(glm::vec3(1.0f,Gg,Bb));
+				colors.push_back(glm::vec3(glm::cos(glm::radians((float)((i + 1)))), glm::sin(glm::radians((float)((i + 1)))), Bb));
+			}
+			else if (i > 120 && i < 240) 
+			{ // GG
+				colors.push_back(glm::vec3(glm::cos(glm::radians((float)((i + 1)))), glm::sin(glm::radians((float)((i + 1)))), Bb));
+
+			}
+			else 
+			{ //BB
+				colors.push_back(glm::vec3(glm::cos(glm::radians((float)((i + 1)))), glm::sin(glm::radians((float)((i + 1)))), Bb));
+			}
+		}
+	}
+	/*
 	colors.push_back(glm::vec3(1.0f, 0.0f, 0.0f));
 	colors.push_back(glm::vec3(0.0f, 1.0f, 0.0f));
 	colors.push_back(glm::vec3(0.0f, 0.0f, 1.0f));
-	colors.push_back(glm::vec3(1.0f, 0.0f, 1.0f));
-	
+	colors.push_back(glm::vec3(1.0f, 1.0f, 1.0f));
+	*/
 	//queremis generar un manager
 	glGenVertexArrays(1,&vao);
 	//utilizar el VAO
@@ -80,7 +123,7 @@ void Initialize()
 
 	// VERTEX SHADER
 	//leemos
-	ifile.Read("Default.vert");
+	ifile.Read("DiscardCenter.vert");
 
 	std::string vertexSource = ifile.GetContents();
 
@@ -97,7 +140,7 @@ void Initialize()
 	glCompileShader(vertexShaderHandle);
 
 	//leemos FRAGMENT SHADER
-	ifile.Read("Default.frag");
+	ifile.Read("DiscardCenter.frag");
 	std::string fragmentSource = ifile.GetContents();
 	GLuint fragmentShaderHandle = glCreateShader(GL_FRAGMENT_SHADER);
 	const GLchar *fragmentSource_c = (const GLchar*)fragmentSource.c_str();
@@ -147,7 +190,7 @@ void GameLoop()
 	glBindVertexArray(vao);
 
 	//metodo, desde cual y cuantos verticesa dibujar
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 362);
 	
 	//MGMT DIES
 	glBindVertexArray(0);
