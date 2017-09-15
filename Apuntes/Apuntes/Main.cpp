@@ -13,6 +13,10 @@ GLuint vao;
 
 //MANAGER DE los shaders (shaderProgram)
 GLuint shaderProgram;
+int ULTRA = 12;
+
+float vertsPerFrame = 0.0f;
+float delta = 0.08f;
 
 void Initialize() 
 {
@@ -23,12 +27,29 @@ void Initialize()
 	// lista de vec2
 	//CLARAMENTE en el CPU y RAM
 	std::vector<glm::vec2> positions;
+	std::vector<glm::vec3> colors;
+	
+	//Esta seccion es del pentagono-----------------------
+	positions.push_back(glm::vec2(0.0f, 1.0f)); //A
+	positions.push_back(glm::vec2(0.0f, 0.5f)); //B
+	positions.push_back(glm::vec2(1 * (glm::cos(glm::radians((float)(18)))), 1 * (glm::sin(glm::radians((float)(18))))));         //C
+	positions.push_back(glm::vec2(0.5f * (glm::cos(glm::radians((float)(18)))), 0.5f * (glm::sin(glm::radians((float)(18))))));   //D
+	positions.push_back(glm::vec2(1 * (glm::cos(glm::radians((float)(306)))), 1 * (glm::sin(glm::radians((float)(306))))));       //F  
+	positions.push_back(glm::vec2(0.5f * (glm::cos(glm::radians((float)(306)))), 0.5f * (glm::sin(glm::radians((float)(306)))))); //E
+	positions.push_back(glm::vec2(1 * (glm::cos(glm::radians((float)(234)))), 1 * (glm::sin(glm::radians((float)(234))))));       //H 
+	positions.push_back(glm::vec2(0.5f * (glm::cos(glm::radians((float)(234)))), 0.5f * (glm::sin(glm::radians((float)(234)))))); //G
+	positions.push_back(glm::vec2(1 * (glm::cos(glm::radians((float)(162)))), 1 * (glm::sin(glm::radians((float)(162))))));       //J 
+	positions.push_back(glm::vec2(0.5f * (glm::cos(glm::radians((float)(162)))), 0.5f * (glm::sin(glm::radians((float)(162)))))); //I
+	positions.push_back(glm::vec2(0.0f, 1.0f)); //A
+	positions.push_back(glm::vec2(0.0f, 0.5f)); //B
+
+	for (int i = 0; i< ULTRA; i++) 
+	{
+		colors.push_back(glm::vec3(0.0f, 1.0f, (float)((i*0.1f)-0.1f)));
+	}
+	//------------------------------------------------------
+
 	/*
-	positions.push_back(glm::vec2(0.5f, -0.5f));
-	positions.push_back(glm::vec2(0.5f, 0.5f));
-	positions.push_back(glm::vec2(-0.5f, -0.5f));
-	positions.push_back(glm::vec2(-0.5f, 0.5f));
-	*/
 	double x = 0;
 	double y = 0;
 	positions.push_back(glm::vec2(0.0f, 0.0f));
@@ -42,7 +63,7 @@ void Initialize()
 	}
 	
 
-	std::vector<glm::vec3> colors;
+
 	int u = 2;
 	float Rr = 0.0f;
 	float Gg = 0.0f;
@@ -71,11 +92,6 @@ void Initialize()
 			}
 		}
 	}
-	/*
-	colors.push_back(glm::vec3(1.0f, 0.0f, 0.0f));
-	colors.push_back(glm::vec3(0.0f, 1.0f, 0.0f));
-	colors.push_back(glm::vec3(0.0f, 0.0f, 1.0f));
-	colors.push_back(glm::vec3(1.0f, 1.0f, 1.0f));
 	*/
 	//queremis generar un manager
 	glGenVertexArrays(1,&vao);
@@ -123,7 +139,8 @@ void Initialize()
 
 	// VERTEX SHADER
 	//leemos
-	ifile.Read("DiscardCenter.vert");
+	//ifile.Read("DiscardCenter.vert");
+	ifile.Read("Default.vert");
 
 	std::string vertexSource = ifile.GetContents();
 
@@ -140,7 +157,8 @@ void Initialize()
 	glCompileShader(vertexShaderHandle);
 
 	//leemos FRAGMENT SHADER
-	ifile.Read("DiscardCenter.frag");
+	//ifile.Read("DiscardCenter.frag");
+	ifile.Read("Default.frag");
 	std::string fragmentSource = ifile.GetContents();
 	GLuint fragmentShaderHandle = glCreateShader(GL_FRAGMENT_SHADER);
 	const GLchar *fragmentSource_c = (const GLchar*)fragmentSource.c_str();
@@ -161,6 +179,13 @@ void Initialize()
 	//se cheka compatibilidad man
 	glLinkProgram(shaderProgram);
 
+	//Para config de un uniform  
+	//decimos a open gl que vamos a usar 
+	//ese manager(shader program)
+	glUseProgram(shaderProgram);
+	GLint uniformLocation = glGetUniformLocation(shaderProgram,"Resolution");
+	glUniform2f(uniformLocation,400.0f,400.0f);
+	glUseProgram(0);
 }
 
 void GameLoop() 
@@ -190,7 +215,8 @@ void GameLoop()
 	glBindVertexArray(vao);
 
 	//metodo, desde cual y cuantos verticesa dibujar
-	glDrawArrays(GL_TRIANGLE_FAN, 0, 362);
+	//glDrawArrays(GL_TRIANGLE_FAN, 0, glm::clamp(vertsPerFrame, 0.0f, 362.0f));
+	glDrawArrays(GL_TRIANGLE_STRIP, 0,ULTRA);
 	
 	//MGMT DIES
 	glBindVertexArray(0);
@@ -198,6 +224,10 @@ void GameLoop()
 	//MGMT DIES AGGAIN
 	glUseProgram(0);
 
+	/*vertsPerFrame += delta;
+	if (vertsPerFrame < 0.0f || vertsPerFrame >= 370.0f)
+		delta *= -1.0f;
+*/
 	//Cuando terminamos de renderear, cambiampos buffers
 	glutSwapBuffers();
 	
@@ -209,6 +239,26 @@ Materia: Gráficas Computacionales
 Fecha: 14 de Agosto del 2017
 Autor: A01374526 José Karlo Hurtado Corona
 *********************************************************/
+
+void ReshapeWindow(int width, int height) 
+{
+	glViewport(0, 0, width, height);
+
+	/*
+	glViewport(0, 0, width, height);
+	glUseProgram(shaderProgram);
+	GLint uniformLocation = glGetUniformLocation(shaderProgram, "Resolution");
+	glUniform2f(uniformLocation, width, height);
+	glUseProgram(0);
+	*/
+}
+
+void Idle() 
+{
+	//Cuando opengl entra ne modo de reposo 
+	//le decimos que vuelva a llamar el gameloop 
+	glutPostRedisplay();
+}
 
 int main(int argc, char* argv[])
 {
@@ -235,7 +285,11 @@ int main(int argc, char* argv[])
 	glutCreateWindow("HELLO WORLD GL ");
 
 	glutDisplayFunc(GameLoop);
-
+	
+	//asociamos una funicon para el cambio de resolucion de la ventana
+	//se va amandar a llamar cuando alguioen cambie el tamaño
+	glutReshapeFunc(ReshapeWindow);
+	glutIdleFunc(Idle);
 	//inicializa glew y se encarga de obtener el api de opengl de nuestra video card
 	glewInit();
 
@@ -243,6 +297,11 @@ int main(int argc, char* argv[])
 	//este es el color por default en el buffer del color
 	glClearColor(1.0f,1.0f,0.5f,1.0f);
 
+	glEnable(GL_DEPTH_TEST);
+	//borrado de caras traseras, todos los triangulos CCW
+	glEnable(GL_CULL_FACE);
+	//No dibujar las caras de atras
+	glEnable(GL_BACK);
 	std::cout << glGetString(GL_VERSION) << std::endl;
 
 	//config inicial del programa.
