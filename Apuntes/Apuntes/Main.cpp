@@ -7,6 +7,16 @@
 #include <vector> 
 #include <glm/glm.hpp>
 #include "InputFile.h"
+#include "Mesh.h"
+#include "ShaderProgram.h"
+#include "Shader.h"
+
+using namespace std;
+/*********************************************************
+Materia: Gráficas Computacionales
+Fecha: 02 de Octubre del 2017
+Autor: A01374526 José Karlo Hurtado Corona
+*********************************************************/
 
 //manager al que le vamos a asociar todos los VBOs
 GLuint vao;
@@ -15,8 +25,13 @@ GLuint vao;
 GLuint shaderProgram;
 int ULTRA = 12;
 
+//animacion
 float vertsPerFrame = 0.0f;
 float delta = 0.08f;
+
+//declaro shader program y mesh
+ShaderProgram sProgram;
+Mesh meshF;
 
 void Initialize() 
 {
@@ -43,64 +58,18 @@ void Initialize()
 	positions.push_back(glm::vec2(0.0f, 1.0f)); //A
 	positions.push_back(glm::vec2(0.0f, 0.5f)); //B
 
-	for (int i = 0; i< ULTRA; i++) 
-	{
-		colors.push_back(glm::vec3(0.0f, 1.0f, (float)((i*0.1f)-0.1f)));
-	}
-	//------------------------------------------------------
-
-	/*
-	double x = 0;
-	double y = 0;
-	positions.push_back(glm::vec2(0.0f, 0.0f));
-
-	for(int i = 0; i < 361 ; i++)
-	{
-		x = 1*(glm::cos(glm::radians((float)(i+1))));
-		y = 1*(glm::sin(glm::radians((float)(i+1))));
-
-		positions.push_back(glm::vec2(x, y));
-	}
-	
 
 
-	int u = 2;
-	float Rr = 0.0f;
-	float Gg = 0.0f;
-	float Bb = 0.0f;
-	for(int i = 0; i < 362 ; i++)
-	{
-		if (i == 0)
-		{
-			colors.push_back(glm::vec3(1.0f, 1.0f, 1.0f));
-		}
-		else 
-		{
-			if (i<= 120) 
-			{ // RR
-				//colors.push_back(glm::vec3(1.0f,Gg,Bb));
-				colors.push_back(glm::vec3(glm::cos(glm::radians((float)((i + 1)))), glm::sin(glm::radians((float)((i + 1)))), Bb));
-			}
-			else if (i > 120 && i < 240) 
-			{ // GG
-				colors.push_back(glm::vec3(glm::cos(glm::radians((float)((i + 1)))), glm::sin(glm::radians((float)((i + 1)))), Bb));
-
-			}
-			else 
-			{ //BB
-				colors.push_back(glm::vec3(glm::cos(glm::radians((float)((i + 1)))), glm::sin(glm::radians((float)((i + 1)))), Bb));
-			}
-		}
-	}
-	*/
 	//queremis generar un manager
-	glGenVertexArrays(1,&vao);
+	//glGenVertexArrays(1,&vao);
+	meshF.CreateMesh((GLint)ULTRA);
+
 	//utilizar el VAO
-	glBindVertexArray(vao);
+	//glBindVertexArray(vao);
+	//parece ser que esto ahora solo se manda a llamar abajo GameLoop
 
 	//-------------------------------------------VBO pos
-
-	//Identificador del VBO de posiciones
+	/*Identificador del VBO de posiciones
 	GLuint positionsVBO;
 	//Creacion del VBO de posiciones
 	glGenBuffers(1,&positionsVBO);
@@ -114,9 +83,10 @@ void Initialize()
 	glVertexAttribPointer(0,2, GL_FLOAT, GL_FALSE,0, nullptr);
 	//YA no vamos a utilizar este VBO en este momento
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	*/ //--------------------------------------------------
+	meshF.SetPositionAttribute(positions, GL_STATIC_DRAW, 0);
 
-
-	//-------------------------------------------VBO colores
+	/*-------------------------------------------VBO colores
 	GLuint colorsVBO;
 	glGenBuffers(1,&colorsVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, colorsVBO);
@@ -127,36 +97,43 @@ void Initialize()
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 	//el cero aqui es que se apague el buffer
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	*/
+	//---------------------------------------------------------
+	for (int i = 0; i< ULTRA; i++)
+	{
+		colors.push_back(glm::vec3(0.0f, 1.0f, (float)((i*0.1f) - 0.1f)));
+	}
 
+	meshF.SetColorAttribute(colors, GL_STATIC_DRAW, 1);
 
-	//Desactivamos el MNGR
+	//Desactivamos el MNGR 
 	glBindVertexArray(0);
 
 
-	//----------------------------EMPIEXO A LEER LOS ARCHIVOS DE TEXTO
+	sProgram.CreateProgram();
+	sProgram.Activate();
+	/*----------------------------EMPIEXO A LEER LOS ARCHIVOS DE TEXTO
 	//pa leer archivos
 	InputFile ifile;
-
 	// VERTEX SHADER
 	//leemos
 	//ifile.Read("DiscardCenter.vert");
 	ifile.Read("Default.vert");
-
 	std::string vertexSource = ifile.GetContents();
-
 	//se crea y se guarda en una variable
 	GLuint vertexShaderHandle = glCreateShader(GL_VERTEX_SHADER);
-
 	const GLchar *vertexSource_c = (const GLchar*)vertexSource.c_str();
-
 	// 1 codigo fuente a donde va, se pasa por referencia no por valor 
 	//pasando para asignar al shader
 	glShaderSource(vertexShaderHandle,1,&vertexSource_c,nullptr);
-
 	//solo compila en busca de errores
 	glCompileShader(vertexShaderHandle);
+	*/
+	//Vertex shader 
+	//-----------------------------------------
+	sProgram.AttachShader("Default.vert", GL_VERTEX_SHADER);
 
-	//leemos FRAGMENT SHADER
+	/*leemos FRAGMENT SHADER
 	//ifile.Read("DiscardCenter.frag");
 	ifile.Read("Default.frag");
 	std::string fragmentSource = ifile.GetContents();
@@ -164,28 +141,41 @@ void Initialize()
 	const GLchar *fragmentSource_c = (const GLchar*)fragmentSource.c_str();
 	glShaderSource(fragmentShaderHandle, 1, &fragmentSource_c, nullptr);
 	glCompileShader(fragmentShaderHandle);
+	*/
+	sProgram.AttachShader("Default.frag", GL_FRAGMENT_SHADER);
 
-	//creamos id de mngr shader
+	/*	
+	creamos id de mngr shader
 	shaderProgram = glCreateProgram();
 
 	//le adjuntamos los shaders
 	glAttachShader(shaderProgram, vertexShaderHandle);
 	glAttachShader(shaderProgram, fragmentShaderHandle);
 
+	//Esto se hizo en lo de arriba pero no lo quiero englobar por la separacion entre los shaders
+	*/
+
+	/*
 	//asociamos un buffer con indice 0 y 1 (posiciones y colores)
 	glBindAttribLocation(shaderProgram, 0, "VertexPosition");
 	glBindAttribLocation(shaderProgram, 1, "VertexColor");
+	*/
+	sProgram.SetAttribute(0, "VertexPosition");
+	sProgram.SetAttribute(1, "VertexColor");
 
 	//se cheka compatibilidad man
-	glLinkProgram(shaderProgram);
+	//glLinkProgram(shaderProgram);
+	sProgram.LinkProgram();
 
-	//Para config de un uniform  
+	/*Para config de un uniform  
 	//decimos a open gl que vamos a usar 
 	//ese manager(shader program)
 	glUseProgram(shaderProgram);
 	GLint uniformLocation = glGetUniformLocation(shaderProgram,"Resolution");
 	glUniform2f(uniformLocation,400.0f,400.0f);
-	glUseProgram(0);
+	glUseProgram(0);*/
+	sProgram.SetUniformf("Resolution", 400.0f, 400.0f);
+	sProgram.Deactivate();
 }
 
 void GameLoop() 
@@ -195,62 +185,32 @@ void GameLoop()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	//activamos con rl manafer
-	glUseProgram(shaderProgram);
-
-
-
-	/* WARNING OPENGL VIEJITO DEPRECATED------------
-	glBegin(GL_TRIANGLES);
-	glColor3f(1.0f, 0.0f, 0.0f);
-	glVertex2f(-1.0f, -1.0f);
-	glColor3f(0.0f, 1.0f, 0.0f);
-	glVertex2f(1.0f, -1.0f);
-	glColor3f(0.0f, 0.0f, 1.0f);
-	glVertex2f(0.0f, 1.0f);
-	glEnd();
-	END WARNING------------------------------------
-	*/
+	//glUseProgram(shaderProgram);
+	sProgram.Activate();
 
 	//activamos el manager y se activan los dbos asociados automaticamente
-	glBindVertexArray(vao);
-
+	//glBindVertexArray(vao);
 	//metodo, desde cual y cuantos verticesa dibujar
 	//glDrawArrays(GL_TRIANGLE_FAN, 0, glm::clamp(vertsPerFrame, 0.0f, 362.0f));
-	glDrawArrays(GL_TRIANGLE_STRIP, 0,ULTRA);
-	
+	//glDrawArrays(GL_TRIANGLE_STRIP, 0,ULTRA);
 	//MGMT DIES
-	glBindVertexArray(0);
+	//glBindVertexArray(0);
+	//TODO ESO ESTA EN ESTO AHORA
+	meshF.Draw(GL_TRIANGLE_STRIP);
 
 	//MGMT DIES AGGAIN
-	glUseProgram(0);
+	//glUseProgram(0);
+	//DIES YEAH
+	sProgram.Deactivate();
 
-	/*vertsPerFrame += delta;
-	if (vertsPerFrame < 0.0f || vertsPerFrame >= 370.0f)
-		delta *= -1.0f;
-*/
 	//Cuando terminamos de renderear, cambiampos buffers
 	glutSwapBuffers();
 	
 }
 
-using namespace std;
-/*********************************************************
-Materia: Gráficas Computacionales
-Fecha: 14 de Agosto del 2017
-Autor: A01374526 José Karlo Hurtado Corona
-*********************************************************/
-
 void ReshapeWindow(int width, int height) 
 {
 	glViewport(0, 0, width, height);
-
-	/*
-	glViewport(0, 0, width, height);
-	glUseProgram(shaderProgram);
-	GLint uniformLocation = glGetUniformLocation(shaderProgram, "Resolution");
-	glUniform2f(uniformLocation, width, height);
-	glUseProgram(0);
-	*/
 }
 
 void Idle() 
@@ -302,7 +262,7 @@ int main(int argc, char* argv[])
 	glEnable(GL_CULL_FACE);
 	//No dibujar las caras de atras
 	glEnable(GL_BACK);
-	std::cout << glGetString(GL_VERSION) << std::endl;
+	//std::cout << glGetString(GL_VERSION) << std::endl;
 
 	//config inicial del programa.
 	Initialize();
@@ -310,30 +270,5 @@ int main(int argc, char* argv[])
 	//Inicia la aplicación, el main se pausa en esta linea hasta que se cierre la ventana
 	glutMainLoop();
 	   
-	/*-------------------------------------------------------------------------------------------------------
-	cout << "Circle    ++++++++++++++++++++++++++++++++++++++" << endl;
-	//Costructor basico;
-	Circle circulo;
-	cout << "Radius: ";
-	cout << circulo.GetRadius() << endl;
-
-	//Costructor parametros;
-	Circle circulo2(2.0, "green");
-	cout << "Radius: ";
-	cout << circulo2.GetRadius() << endl;
-
-	cout << "Rectangle    ++++++++++++++++++++++++++++++++++++++" << endl;
-	//Costructor basico;
-	Rectangle rec;
-	cout << "Area: ";
-	cout << rec.GetArea() << endl;
-
-	//Costructor parametros;
-	Rectangle rec2(2.0f, 4.0f);
-	cout << "Perimeter: ";
-	cout << rec2.GetPerimeter() << endl;
-
-	cin.get();
-	*/
 	return 0;
 }
