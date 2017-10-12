@@ -1,20 +1,19 @@
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 #include <iostream>
-#include "Circle.h"
-#include "Rectangle.h"
 #include <string>
 #include <vector> 
 #include <glm/glm.hpp>
-#include "InputFile.h"
 #include "Mesh.h"
 #include "ShaderProgram.h"
 #include "Shader.h"
+#include "Transform.h"
+#include "Camera.h"
 
 using namespace std;
 /*********************************************************
 Materia: Gráficas Computacionales
-Fecha: 02 de Octubre del 2017
+Fecha: 16 de Octubre del 2017
 Autor: A01374526 José Karlo Hurtado Corona
 *********************************************************/
 
@@ -23,7 +22,7 @@ GLuint vao;
 
 //MANAGER DE los shaders (shaderProgram)
 GLuint shaderProgram;
-int ULTRA = 12;
+int ULTRA = 12 * 6;
 
 //animacion
 float vertsPerFrame = 0.0f;
@@ -33,77 +32,140 @@ float delta = 0.08f;
 ShaderProgram sProgram;
 Mesh meshF;
 
-void Initialize() 
+//LO del transform
+Transform _transform;
+Camera _camera;
+
+void Initialize()
 {
 	//---------+-----------------------------------------------+-------------
 	// creando toda la memoria una sola vez al inicio de la vida del programa.
-	
+
 	//Creacion del atributo de posiciones de los vertices 
-	// lista de vec2
+	// lista de vec3
 	//CLARAMENTE en el CPU y RAM
-	std::vector<glm::vec2> positions;
+	std::vector<glm::vec3> positions;
 	std::vector<glm::vec3> colors;
+
+	//Esta seccion es del CUBO Y SUS VERTICes-----------------------
+
+	//cara posterior
+	positions.push_back(glm::vec3(0.0f, 0.0f, -0.5f)); //centrum --------------Right
+	positions.push_back(glm::vec3(0.5f, -0.5f, -0.5f)); //lowerRight
+	positions.push_back(glm::vec3(0.5f, 0.5f, -0.5f)); //UpperRight
+	positions.push_back(glm::vec3(0.0f, 0.0f, -0.5f)); //centrum --------------Down
+	positions.push_back(glm::vec3(-0.5f, -0.5f, -0.5f)); //lowerLeft
+	positions.push_back(glm::vec3(0.5f, -0.5f, -0.5f)); //LowerRight
+	positions.push_back(glm::vec3(0.0f, 0.0f, -0.5f)); //centrum --------------Left
+	positions.push_back(glm::vec3(-0.5f, 0.5f, -0.5f)); //UpperLeft
+	positions.push_back(glm::vec3(-0.5f, -0.5f, -0.5f)); //lowerLeft
+	positions.push_back(glm::vec3(0.0f, 0.0f, -0.5f)); //centrum --------------Up
+	positions.push_back(glm::vec3(0.5f, 0.5f, -0.5f)); //UpperRight
+	positions.push_back(glm::vec3(-0.5f, 0.5f, -0.5f)); //UpperLeft
+
+	//Cara lateral Derecha
+	positions.push_back(glm::vec3(0.5f, 0.0f, 0.0f)); //centrum --------------Right
+	positions.push_back(glm::vec3(0.5f, -0.5f, -0.5f)); //lowerRight
+	positions.push_back(glm::vec3(0.5f, 0.5f, -0.5f)); //UpperRight
+	positions.push_back(glm::vec3(0.5f, 0.0f, 0.0f)); //centrum --------------Down
+	positions.push_back(glm::vec3(0.5f, -0.5f, 0.5f)); //lowerLeft
+	positions.push_back(glm::vec3(0.5f, -0.5f, -0.5f)); //LowerRight
+	positions.push_back(glm::vec3(0.5f, 0.0f, 0.0f)); //centrum --------------Left
+	positions.push_back(glm::vec3(0.5f, 0.5f, 0.5f)); //UpperLeft
+	positions.push_back(glm::vec3(0.5f, -0.5f, 0.5f)); //lowerLeft
+	positions.push_back(glm::vec3(0.5f, 0.0f, 0.0f)); //centrum --------------Up
+	positions.push_back(glm::vec3(0.5f, 0.5f, -0.5f)); //UpperRight
+	positions.push_back(glm::vec3(0.5f, 0.5f, 0.5f)); //UpperLeft
+
+	//cara Anterior
+	positions.push_back(glm::vec3(0.0f, 0.0f, 0.5f)); //centrum --------------Right
+	positions.push_back(glm::vec3(0.5f, -0.5f, 0.5f)); //lowerRight
+	positions.push_back(glm::vec3(0.5f, 0.5f, 0.5f)); //UpperRight
+	positions.push_back(glm::vec3(0.0f, 0.0f, 0.5f)); //centrum --------------Down
+	positions.push_back(glm::vec3(-0.5f, -0.5f, 0.5f)); //lowerLeft
+	positions.push_back(glm::vec3(0.5f, -0.5f, 0.5f)); //LowerRight
+	positions.push_back(glm::vec3(0.0f, 0.0f, 0.5f)); //centrum --------------Left
+	positions.push_back(glm::vec3(-0.5f, 0.5f, 0.5f)); //UpperLeft
+	positions.push_back(glm::vec3(-0.5f, -0.5f, 0.5f)); //lowerLeft
+	positions.push_back(glm::vec3(0.0f, 0.0f, 0.5f)); //centrum --------------Up
+	positions.push_back(glm::vec3(0.5f, 0.5f, 0.5f)); //UpperRight
+	positions.push_back(glm::vec3(-0.5f, 0.5f, 0.5f)); //UpperLeft
 	
-	//Esta seccion es del pentagono-----------------------
-	positions.push_back(glm::vec2(0.0f, 1.0f)); //A
-	positions.push_back(glm::vec2(0.0f, 0.5f)); //B
-	positions.push_back(glm::vec2(1 * (glm::cos(glm::radians((float)(18)))), 1 * (glm::sin(glm::radians((float)(18))))));         //C
-	positions.push_back(glm::vec2(0.5f * (glm::cos(glm::radians((float)(18)))), 0.5f * (glm::sin(glm::radians((float)(18))))));   //D
-	positions.push_back(glm::vec2(1 * (glm::cos(glm::radians((float)(306)))), 1 * (glm::sin(glm::radians((float)(306))))));       //F  
-	positions.push_back(glm::vec2(0.5f * (glm::cos(glm::radians((float)(306)))), 0.5f * (glm::sin(glm::radians((float)(306)))))); //E
-	positions.push_back(glm::vec2(1 * (glm::cos(glm::radians((float)(234)))), 1 * (glm::sin(glm::radians((float)(234))))));       //H 
-	positions.push_back(glm::vec2(0.5f * (glm::cos(glm::radians((float)(234)))), 0.5f * (glm::sin(glm::radians((float)(234)))))); //G
-	positions.push_back(glm::vec2(1 * (glm::cos(glm::radians((float)(162)))), 1 * (glm::sin(glm::radians((float)(162))))));       //J 
-	positions.push_back(glm::vec2(0.5f * (glm::cos(glm::radians((float)(162)))), 0.5f * (glm::sin(glm::radians((float)(162)))))); //I
-	positions.push_back(glm::vec2(0.0f, 1.0f)); //A
-	positions.push_back(glm::vec2(0.0f, 0.5f)); //B
+	//Cara lateral Izquierda
+	positions.push_back(glm::vec3(-0.5f, 0.0f, 0.0f)); //centrum --------------Right
+	positions.push_back(glm::vec3(-0.5f, -0.5f, -0.5f)); //lowerRight
+	positions.push_back(glm::vec3(-0.5f, 0.5f, -0.5f)); //UpperRight
+	positions.push_back(glm::vec3(-0.5f, 0.0f, 0.0f)); //centrum --------------Down
+	positions.push_back(glm::vec3(-0.5f, -0.5f, 0.5f)); //lowerLeft
+	positions.push_back(glm::vec3(-0.5f, -0.5f, -0.5f)); //LowerRight
+	positions.push_back(glm::vec3(-0.5f, 0.0f, 0.0f)); //centrum --------------Left
+	positions.push_back(glm::vec3(-0.5f, 0.5f, 0.5f)); //UpperLeft
+	positions.push_back(glm::vec3(-0.5f, -0.5f, 0.5f)); //lowerLeft
+	positions.push_back(glm::vec3(-0.5f, 0.0f, 0.0f)); //centrum --------------Up
+	positions.push_back(glm::vec3(-0.5f, 0.5f, -0.5f)); //UpperRight
+	positions.push_back(glm::vec3(-0.5f, 0.5f, 0.5f)); //UpperLeft
+
+	//Cara Arriba
+	positions.push_back(glm::vec3(0.0f, 0.5f, 0.0f)); //centrum --------------Right
+	positions.push_back(glm::vec3(0.5f, 0.5f, -0.5f)); //lowerRight
+	positions.push_back(glm::vec3(0.5f, 0.5f, 0.5f)); //UpperRight
+	positions.push_back(glm::vec3(0.0f, 0.5f, 0.0f)); //centrum --------------Down
+	positions.push_back(glm::vec3(-0.5f, 0.5f, -0.5f)); //lowerLeft
+	positions.push_back(glm::vec3(0.5f, 0.5f, -0.5f)); //LowerRight
+	positions.push_back(glm::vec3(0.0f, 0.5f, 0.0f)); //centrum --------------Left
+	positions.push_back(glm::vec3(-0.5f, 0.5f, 0.5f)); //UpperLeft
+	positions.push_back(glm::vec3(-0.5f, 0.5f, -0.5f)); //lowerLeft
+	positions.push_back(glm::vec3(0.0f, 0.5f, 0.0f)); //centrum --------------Up
+	positions.push_back(glm::vec3(0.5f, 0.5f, 0.5f)); //UpperRight
+	positions.push_back(glm::vec3(-0.5f, 0.5f, 0.5f)); //UpperLeft
 
 
+	//Cara Abajo
+	positions.push_back(glm::vec3(0.0f, -0.5f, 0.0f)); //centrum --------------Right
+	positions.push_back(glm::vec3(0.5f, -0.5f, -0.5f)); //lowerRight
+	positions.push_back(glm::vec3(0.5f, -0.5f, 0.5f)); //UpperRight
+	positions.push_back(glm::vec3(0.0f, -0.5f, 0.0f)); //centrum --------------Down
+	positions.push_back(glm::vec3(-0.5f, -0.5f, -0.5f)); //lowerLeft
+	positions.push_back(glm::vec3(0.5f, -0.5f, -0.5f)); //LowerRight
+	positions.push_back(glm::vec3(0.0f, -0.5f, 0.0f)); //centrum --------------Left
+	positions.push_back(glm::vec3(-0.5f, -0.5f, 0.5f)); //UpperLeft
+	positions.push_back(glm::vec3(-0.5f, -0.5f, -0.5f)); //lowerLeft
+	positions.push_back(glm::vec3(0.0f, -0.5f, 0.0f)); //centrum --------------Up
+	positions.push_back(glm::vec3(0.5f, -0.5f, 0.5f)); //UpperRight
+	positions.push_back(glm::vec3(-0.5f, -0.5f, 0.5f)); //UpperLeft
 
-	//queremis generar un manager
-	//glGenVertexArrays(1,&vao);
-	meshF.CreateMesh((GLint)ULTRA);
-
-	//utilizar el VAO
-	//glBindVertexArray(vao);
-	//parece ser que esto ahora solo se manda a llamar abajo GameLoop
-
-	//-------------------------------------------VBO pos
-	/*Identificador del VBO de posiciones
-	GLuint positionsVBO;
-	//Creacion del VBO de posiciones
-	glGenBuffers(1,&positionsVBO);
-	//Lo activamos para poder utilizarlo
-	glBindBuffer(GL_ARRAY_BUFFER, positionsVBO);
-	//Creamos la memoria y la inicializamos con lis datos del atributo de posiciones
-	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2)*positions.size(),positions.data(), GL_STATIC_DRAW);
-	//Activamos el atributo en la tarjeta de video 
-	glEnableVertexAttribArray(0);
-	//Configuramos los datos del atributo en la tarjeta de video
-	glVertexAttribPointer(0,2, GL_FLOAT, GL_FALSE,0, nullptr);
-	//YA no vamos a utilizar este VBO en este momento
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	*/ //--------------------------------------------------
-	meshF.SetPositionAttribute(positions, GL_STATIC_DRAW, 0);
-
-	/*-------------------------------------------VBO colores
-	GLuint colorsVBO;
-	glGenBuffers(1,&colorsVBO);
-	glBindBuffer(GL_ARRAY_BUFFER, colorsVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3)*colors.size(), colors.data(), GL_STATIC_DRAW);
-	//PRENDEMOS EL SIGUIENTE ATRIBUTO
-	glEnableVertexAttribArray(1);
-	//el tres es el numero de variables en sus vectores, en este caso 3
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-	//el cero aqui es que se apague el buffer
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	*/
-	//---------------------------------------------------------
-	for (int i = 0; i< ULTRA; i++)
+	//COLORES
+	for (int i = 0; i< ULTRA; i++) 
 	{
-		colors.push_back(glm::vec3(0.0f, 1.0f, (float)((i*0.1f) - 0.1f)));
+		if (i < 12)
+		{
+			colors.push_back(glm::vec3(0.0f, 1.0f, 0.0f));
+		}
+		else if (i >= 12 && i < 24)
+		{
+			colors.push_back(glm::vec3(0.0f, 0.0f, 1.0f));
+		}
+		else if (i >= 24 && i < 36)
+		{
+			colors.push_back(glm::vec3(1.0f, 0.0f, 0.0f));
+		}
+		else if (i >= 36 && i < 48)
+		{
+			colors.push_back(glm::vec3(1.0f, 0.0f, 1.0f));
+		}
+		else if (i >= 48 && i < 60)
+		{
+			colors.push_back(glm::vec3(1.0f, 1.0f, 0.0f));
+		}
+		else 
+		{
+			colors.push_back(glm::vec3(0.0f, 1.0f, 1.0f));
+		}
 	}
 
+	//queremis generar un manager
+	meshF.CreateMesh((GLint)ULTRA);
+	meshF.SetPositionAttribute(positions, GL_STATIC_DRAW, 0);
 	meshF.SetColorAttribute(colors, GL_STATIC_DRAW, 1);
 
 	//Desactivamos el MNGR 
@@ -112,70 +174,24 @@ void Initialize()
 
 	sProgram.CreateProgram();
 	sProgram.Activate();
-	/*----------------------------EMPIEXO A LEER LOS ARCHIVOS DE TEXTO
-	//pa leer archivos
-	InputFile ifile;
-	// VERTEX SHADER
-	//leemos
-	//ifile.Read("DiscardCenter.vert");
-	ifile.Read("Default.vert");
-	std::string vertexSource = ifile.GetContents();
-	//se crea y se guarda en una variable
-	GLuint vertexShaderHandle = glCreateShader(GL_VERTEX_SHADER);
-	const GLchar *vertexSource_c = (const GLchar*)vertexSource.c_str();
-	// 1 codigo fuente a donde va, se pasa por referencia no por valor 
-	//pasando para asignar al shader
-	glShaderSource(vertexShaderHandle,1,&vertexSource_c,nullptr);
-	//solo compila en busca de errores
-	glCompileShader(vertexShaderHandle);
-	*/
+
 	//Vertex shader 
 	//-----------------------------------------
 	sProgram.AttachShader("Default.vert", GL_VERTEX_SHADER);
 
-	/*leemos FRAGMENT SHADER
-	//ifile.Read("DiscardCenter.frag");
-	ifile.Read("Default.frag");
-	std::string fragmentSource = ifile.GetContents();
-	GLuint fragmentShaderHandle = glCreateShader(GL_FRAGMENT_SHADER);
-	const GLchar *fragmentSource_c = (const GLchar*)fragmentSource.c_str();
-	glShaderSource(fragmentShaderHandle, 1, &fragmentSource_c, nullptr);
-	glCompileShader(fragmentShaderHandle);
-	*/
 	sProgram.AttachShader("Default.frag", GL_FRAGMENT_SHADER);
-
-	/*	
-	creamos id de mngr shader
-	shaderProgram = glCreateProgram();
-
-	//le adjuntamos los shaders
-	glAttachShader(shaderProgram, vertexShaderHandle);
-	glAttachShader(shaderProgram, fragmentShaderHandle);
-
-	//Esto se hizo en lo de arriba pero no lo quiero englobar por la separacion entre los shaders
-	*/
-
-	/*
-	//asociamos un buffer con indice 0 y 1 (posiciones y colores)
-	glBindAttribLocation(shaderProgram, 0, "VertexPosition");
-	glBindAttribLocation(shaderProgram, 1, "VertexColor");
-	*/
 	sProgram.SetAttribute(0, "VertexPosition");
 	sProgram.SetAttribute(1, "VertexColor");
 
 	//se cheka compatibilidad man
-	//glLinkProgram(shaderProgram);
-	sProgram.LinkProgram();
+	sProgram.LinkProgram(); 
 
-	/*Para config de un uniform  
-	//decimos a open gl que vamos a usar 
-	//ese manager(shader program)
-	glUseProgram(shaderProgram);
-	GLint uniformLocation = glGetUniformLocation(shaderProgram,"Resolution");
-	glUniform2f(uniformLocation,400.0f,400.0f);
-	glUseProgram(0);*/
 	sProgram.SetUniformf("Resolution", 400.0f, 400.0f);
 	sProgram.Deactivate();
+
+	_transform.SetRotation(0.0f, 0.0f, 90.0f);
+
+	_camera.SetOrtographic(1.0f,1.0f);
 }
 
 void GameLoop() 
@@ -184,23 +200,25 @@ void GameLoop()
 	//siempre hcerlo alinicio del frame
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	//esta es la linea que hace rotar 
+	//el true o false hace que rote con respecto al mundo o no 
+
+	//_camera.MoveForward(0.0001f);
+	_transform.Rotate(0.01f, 0.01f, 0.01f, false);
+	//_transform.Rotate(0.0f, 0.01f, 0.0f, true );
+
 	//activamos con rl manafer
 	//glUseProgram(shaderProgram);
 	sProgram.Activate();
+	//sProgram.SetUniformMatrix("modelMatrix", _transform.GetModelMatrix());
+	sProgram.SetUniformMatrix("mvpMatrix", _camera.GetViewProjection() * _transform.GetModelMatrix());
 
 	//activamos el manager y se activan los dbos asociados automaticamente
-	//glBindVertexArray(vao);
 	//metodo, desde cual y cuantos verticesa dibujar
-	//glDrawArrays(GL_TRIANGLE_FAN, 0, glm::clamp(vertsPerFrame, 0.0f, 362.0f));
-	//glDrawArrays(GL_TRIANGLE_STRIP, 0,ULTRA);
 	//MGMT DIES
-	//glBindVertexArray(0);
-	//TODO ESO ESTA EN ESTO AHORA
-	meshF.Draw(GL_TRIANGLE_STRIP);
+	meshF.Draw(GL_TRIANGLES);
 
 	//MGMT DIES AGGAIN
-	//glUseProgram(0);
-	//DIES YEAH
 	sProgram.Deactivate();
 
 	//Cuando terminamos de renderear, cambiampos buffers
@@ -259,9 +277,9 @@ int main(int argc, char* argv[])
 
 	glEnable(GL_DEPTH_TEST);
 	//borrado de caras traseras, todos los triangulos CCW
-	glEnable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
 	//No dibujar las caras de atras
-	glEnable(GL_BACK);
+	//glEnable(GL_BACK);
 	//std::cout << glGetString(GL_VERSION) << std::endl;
 
 	//config inicial del programa.

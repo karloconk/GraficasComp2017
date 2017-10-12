@@ -1,10 +1,4 @@
 ﻿C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(387,5): warning MSB8028: The intermediate directory (Debug\) contains files shared from another project (Apuntes.vcxproj).  This can lead to incorrect clean and rebuild behavior.
-  ShaderProgram.cpp
-c:\users\808kh\documents\github\graficascomp2017\apuntes\apuntes\shaderprogram.cpp(44): warning C4018: '<': signed/unsigned mismatch
-c:\users\808kh\documents\github\graficascomp2017\apuntes\apuntes\shaderprogram.cpp(93): warning C4018: '<': signed/unsigned mismatch
-  Shader.cpp
-  Mesh.cpp
   Main.cpp
-  Generating Code...
   Apuntes.vcxproj -> C:\Users\808kh\Documents\GitHub\GraficasComp2017\Apuntes\Debug\ApunteClase2.exe
   Apuntes.vcxproj -> C:\Users\808kh\Documents\GitHub\GraficasComp2017\Apuntes\Debug\ApunteClase2.pdb (Partial PDB)

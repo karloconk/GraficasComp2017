@@ -1,12 +1,14 @@
+#include <memory>
+#include <vector>
 #include <string>
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 #include <glm/glm.hpp>
-#include <memory>
-#include <vector>
-#include "ShaderProgram.h"
-#include "InputFile.h" 
 #include "Shader.h"
+#include "InputFile.h" 
+#include "ShaderProgram.h"
+#include <glm/gtc/type_ptr.hpp>
+
 
 using namespace std;
 using namespace glm;
@@ -86,6 +88,12 @@ void ShaderProgram::SetUniformf(string name, float x, float y, float z, float w)
 {
 	GLint uniformLocation = glGetUniformLocation(_programHandle, (const GLchar*)name.c_str());
 	glUniform4f(uniformLocation, x, y, z, w);
+}
+
+void ShaderProgram::SetUniformMatrix(string name, glm::mat4 matrix)
+{
+	GLint uniformLocation = glGetUniformLocation(_programHandle, (const GLchar*)name.c_str());
+	glUniformMatrix4fv(uniformLocation, 1, GL_FALSE, glm::value_ptr(matrix));
 }
 
 void ShaderProgram::DeleteAndDetachShaders()

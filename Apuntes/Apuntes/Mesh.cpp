@@ -10,7 +10,7 @@ using namespace std;
 using namespace glm;
 /*********************************************************
 Materia: Graficas Computacionales
-Fecha: 02 de Octubre del 2017
+Fecha: 12 de Octubre del 2017
 Autor: A01374526 Jose Karlo Hurtado Corona
 *********************************************************/
 
@@ -20,6 +20,8 @@ Mesh::Mesh()
 	_positionsVertexBufferObject = 0;
 	_colorsVertexBufferObject = 0;
 	_vertexCount = 0;
+	_indicesCount = 0;
+	_indicesBufferObject = 0;
 }
 
 Mesh::~Mesh()
@@ -39,9 +41,18 @@ void Mesh::CreateMesh(GLint vertexCount)
 
 void Mesh::Draw(GLenum primitive)
 {
-	glBindVertexArray(_vertexArrayObject);
-	glDrawArrays(primitive, 0, _vertexCount);
-	glBindVertexArray(0);
+	if (_indicesCount == 0)
+	{
+		glBindVertexArray(_vertexArrayObject);
+		glDrawArrays(primitive, 0, _vertexCount);
+		glBindVertexArray(0);
+	}
+	else 
+	{
+		glBindVertexArray(_vertexArrayObject);
+		glDrawElements(primitive, _indicesCount, GL_UNSIGNED_INT, nullptr);
+		glBindVertexArray(0);
+	}
 }
 
 void Mesh::SetPositionAttribute(vector<vec2> positions, GLenum usage, GLuint locationIndex)
@@ -81,6 +92,25 @@ void Mesh::SetColorAttribute(vector<vec4> colors, GLenum usage, GLuint locationI
 	else
 	{
 		SetAttributeData(_colorsVertexBufferObject, sizeof(vec4)*colors.size(), colors.data(), usage, locationIndex, 4);
+	}
+}
+
+void Mesh::SetIndices(vector<unsigned int> indices, GLenum usage)
+{
+	if (indices.empty())
+	{;}
+	else
+	{
+		if (_indicesBufferObject != 0)
+		{
+			glDeleteBuffers(1, &_indicesBufferObject);
+		}
+		_indicesCount = indices.size();
+		glBindVertexArray(_vertexArrayObject);
+		glGenBuffers(1, &_indicesBufferObject);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indicesBufferObject);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * _indicesCount, indices.data(), usage);
+		glBindVertexArray(0);
 	}
 }
 

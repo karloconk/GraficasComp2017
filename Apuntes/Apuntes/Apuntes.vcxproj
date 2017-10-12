@@ -118,6 +118,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Circle.cpp" />
     <ClCompile Include="Employee.cpp" />
     <ClCompile Include="InputFile.cpp" />
@@ -126,8 +127,10 @@
     <ClCompile Include="Rectangle.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderProgram.cpp" />
+    <ClCompile Include="Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="ShaderProgram.h" />
     <ClInclude Include="Circle.h" />
     <ClInclude Include="Employee.h" />
@@ -135,6 +138,7 @@
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Rectangle.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="Transform.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Default.frag" />
