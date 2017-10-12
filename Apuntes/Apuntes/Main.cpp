@@ -18,6 +18,8 @@ Fecha: 16 de Octubre del 2017
 Autor: A01374526 José Karlo Hurtado Corona
 *********************************************************/
 
+#pragma region Global Scope vars
+
 //manager al que le vamos a asociar todos los VBOs
 GLuint vao;
 
@@ -37,6 +39,10 @@ Mesh meshF;
 //LO del transform
 Transform _transform;
 Camera _camera;
+
+//se obtuvo la informacion de #pragma region de: https://msdn.microsoft.com/en-us/library/b6xkz944.aspx
+
+#pragma endregion 
 
 //LOS COLORES Y LOS VERTICES
 vector<vec3> colores()
