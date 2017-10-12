@@ -11,6 +11,7 @@
 #include "Camera.h"
 
 using namespace std;
+using namespace glm;
 /*********************************************************
 Materia: Gráficas Computacionales
 Fecha: 16 de Octubre del 2017
@@ -22,7 +23,8 @@ GLuint vao;
 
 //MANAGER DE los shaders (shaderProgram)
 GLuint shaderProgram;
-int ULTRA = 12 * 6;
+int g = 9;
+int ULTRA = g * 6;
 
 //animacion
 float vertsPerFrame = 0.0f;
@@ -36,6 +38,114 @@ Mesh meshF;
 Transform _transform;
 Camera _camera;
 
+//LOS COLORES Y LOS VERTICES
+vector<vec3> colores()
+{
+	//COLORES Distintos para cada cara
+	std::vector<glm::vec3> colors;
+	for (int i = 0; i< ULTRA; i++)
+	{
+		if (i < g)
+		{
+			colors.push_back(glm::vec3(0.0f, 1.0f, 0.0f));
+		}
+		else if (i >= g && i < (g * 2))
+		{
+			colors.push_back(glm::vec3(0.0f, 0.0f, 1.0f));
+		}
+		else if (i >= (g * 2) && i < (g * 3))
+		{
+			colors.push_back(glm::vec3(1.0f, 0.0f, 0.0f));
+		}
+		else if (i >= (g * 3) && i < (g * 4))
+		{
+			colors.push_back(glm::vec3(1.0f, 0.0f, 1.0f));
+		}
+		else if (i >= (g * 4) && i < (g * 5))
+		{
+			colors.push_back(glm::vec3(1.0f, 1.0f, 0.0f));
+		}
+		else
+		{
+			colors.push_back(glm::vec3(0.0f, 1.0f, 1.0f));
+		}
+	}
+	return colors;
+}
+
+vector<vec3> posiciones() 
+{
+	//Esto es un CUBO 
+	std::vector<glm::vec3> positions;
+	//cara posterior
+	positions.push_back(glm::vec3(0.0f, 0.0f, -3.0f)); //centrum
+	positions.push_back(glm::vec3(3.0f, -3.0f, -3.0f)); //lowerRight
+	positions.push_back(glm::vec3(3.0f, 3.0f, -3.0f)); //UpperRight
+	positions.push_back(glm::vec3(-3.0f, -3.0f, -3.0f)); //lowerLeft
+	positions.push_back(glm::vec3(3.0f, -3.0f, -3.0f)); //LowerRight
+	positions.push_back(glm::vec3(-3.0f, 3.0f, -3.0f)); //UpperLeft
+	positions.push_back(glm::vec3(-3.0f, -3.0f, -3.0f)); //lowerLeft
+	positions.push_back(glm::vec3(3.0f, 3.0f, -3.0f)); //UpperRight
+	positions.push_back(glm::vec3(-3.0f, 3.0f, -3.0f)); //UpperLeft
+
+														//Cara lateral Derecha
+	positions.push_back(glm::vec3(3.0f, 0.0f, 0.0f)); //centrum 
+	positions.push_back(glm::vec3(3.0f, -3.0f, -3.0f)); //lowerRight
+	positions.push_back(glm::vec3(3.0f, 3.0f, -3.0f)); //UpperRight
+	positions.push_back(glm::vec3(3.0f, -3.0f, 3.0f)); //lowerLeft
+	positions.push_back(glm::vec3(3.0f, -3.0f, -3.0f)); //LowerRight
+	positions.push_back(glm::vec3(3.0f, 3.0f, 3.0f)); //UpperLeft
+	positions.push_back(glm::vec3(3.0f, -3.0f, 3.0f)); //lowerLeft
+	positions.push_back(glm::vec3(3.0f, 3.0f, -3.0f)); //UpperRight
+	positions.push_back(glm::vec3(3.0f, 3.0f, 3.0f)); //UpperLeft
+
+													  //cara Anterior
+	positions.push_back(glm::vec3(0.0f, 0.0f, 3.0f)); //centrum 
+	positions.push_back(glm::vec3(3.0f, -3.0f, 3.0f)); //lowerRight
+	positions.push_back(glm::vec3(3.0f, 3.0f, 3.0f)); //UpperRight
+	positions.push_back(glm::vec3(-3.0f, -3.0f, 3.0f)); //lowerLeft
+	positions.push_back(glm::vec3(3.0f, -3.0f, 3.0f)); //LowerRight
+	positions.push_back(glm::vec3(-3.0f, 3.0f, 3.0f)); //UpperLeft
+	positions.push_back(glm::vec3(-3.0f, -3.0f, 3.0f)); //lowerLeft
+	positions.push_back(glm::vec3(3.0f, 3.0f, 3.0f)); //UpperRight
+	positions.push_back(glm::vec3(-3.0f, 3.0f, 3.0f)); //UpperLeft
+
+													   //Cara lateral Izquierda
+	positions.push_back(glm::vec3(-3.0f, 0.0f, 0.0f)); //centrum 
+	positions.push_back(glm::vec3(-3.0f, -3.0f, -3.0f)); //lowerRight
+	positions.push_back(glm::vec3(-3.0f, 3.0f, -3.0f)); //UpperRight
+	positions.push_back(glm::vec3(-3.0f, -3.0f, 3.0f)); //lowerLeft
+	positions.push_back(glm::vec3(-3.0f, -3.0f, -3.0f)); //LowerRight
+	positions.push_back(glm::vec3(-3.0f, 3.0f, 3.0f)); //UpperLeft
+	positions.push_back(glm::vec3(-3.0f, -3.0f, 3.0f)); //lowerLeft
+	positions.push_back(glm::vec3(-3.0f, 3.0f, -3.0f)); //UpperRight
+	positions.push_back(glm::vec3(-3.0f, 3.0f, 3.0f)); //UpperLeft
+
+													   //Cara Arriba
+	positions.push_back(glm::vec3(0.0f, 3.0f, 0.0f)); //centrum 
+	positions.push_back(glm::vec3(3.0f, 3.0f, -3.0f)); //lowerRight
+	positions.push_back(glm::vec3(3.0f, 3.0f, 3.0f)); //UpperRight
+	positions.push_back(glm::vec3(-3.0f, 3.0f, -3.0f)); //lowerLeft
+	positions.push_back(glm::vec3(3.0f, 3.0f, -3.0f)); //LowerRight
+	positions.push_back(glm::vec3(-3.0f, 3.0f, 3.0f)); //UpperLeft
+	positions.push_back(glm::vec3(-3.0f, 3.0f, -3.0f)); //lowerLeft
+	positions.push_back(glm::vec3(3.0f, 3.0f, 3.0f)); //UpperRight
+	positions.push_back(glm::vec3(-3.0f, 3.0f, 3.0f)); //UpperLeft
+
+													   //Cara Abajo
+	positions.push_back(glm::vec3(0.0f, -3.0f, 0.0f)); //centrum 
+	positions.push_back(glm::vec3(3.0f, -3.0f, -3.0f)); //lowerRight
+	positions.push_back(glm::vec3(3.0f, -3.0f, 3.0f)); //UpperRight
+	positions.push_back(glm::vec3(-3.0f, -3.0f, -3.0f)); //lowerLeft
+	positions.push_back(glm::vec3(3.0f, -3.0f, -3.0f)); //LowerRight
+	positions.push_back(glm::vec3(-3.0f, -3.0f, 3.0f)); //UpperLeft
+	positions.push_back(glm::vec3(-3.0f, -3.0f, -3.0f)); //lowerLeft
+	positions.push_back(glm::vec3(3.0f, -3.0f, 3.0f)); //UpperRight
+	positions.push_back(glm::vec3(-3.0f, -3.0f, 3.0f)); //UpperLeft
+
+	return positions;
+}
+
 void Initialize()
 {
 	//---------+-----------------------------------------------+-------------
@@ -44,129 +154,17 @@ void Initialize()
 	//Creacion del atributo de posiciones de los vertices 
 	// lista de vec3
 	//CLARAMENTE en el CPU y RAM
-	std::vector<glm::vec3> positions;
-	std::vector<glm::vec3> colors;
+	std::vector<glm::vec3> positions = posiciones();
+	std::vector<glm::vec3> colors = colores();
 
-	//Esta seccion es del CUBO Y SUS VERTICes-----------------------
-
-	//cara posterior
-	positions.push_back(glm::vec3(0.0f, 0.0f, -0.5f)); //centrum --------------Right
-	positions.push_back(glm::vec3(0.5f, -0.5f, -0.5f)); //lowerRight
-	positions.push_back(glm::vec3(0.5f, 0.5f, -0.5f)); //UpperRight
-	positions.push_back(glm::vec3(0.0f, 0.0f, -0.5f)); //centrum --------------Down
-	positions.push_back(glm::vec3(-0.5f, -0.5f, -0.5f)); //lowerLeft
-	positions.push_back(glm::vec3(0.5f, -0.5f, -0.5f)); //LowerRight
-	positions.push_back(glm::vec3(0.0f, 0.0f, -0.5f)); //centrum --------------Left
-	positions.push_back(glm::vec3(-0.5f, 0.5f, -0.5f)); //UpperLeft
-	positions.push_back(glm::vec3(-0.5f, -0.5f, -0.5f)); //lowerLeft
-	positions.push_back(glm::vec3(0.0f, 0.0f, -0.5f)); //centrum --------------Up
-	positions.push_back(glm::vec3(0.5f, 0.5f, -0.5f)); //UpperRight
-	positions.push_back(glm::vec3(-0.5f, 0.5f, -0.5f)); //UpperLeft
-
-	//Cara lateral Derecha
-	positions.push_back(glm::vec3(0.5f, 0.0f, 0.0f)); //centrum --------------Right
-	positions.push_back(glm::vec3(0.5f, -0.5f, -0.5f)); //lowerRight
-	positions.push_back(glm::vec3(0.5f, 0.5f, -0.5f)); //UpperRight
-	positions.push_back(glm::vec3(0.5f, 0.0f, 0.0f)); //centrum --------------Down
-	positions.push_back(glm::vec3(0.5f, -0.5f, 0.5f)); //lowerLeft
-	positions.push_back(glm::vec3(0.5f, -0.5f, -0.5f)); //LowerRight
-	positions.push_back(glm::vec3(0.5f, 0.0f, 0.0f)); //centrum --------------Left
-	positions.push_back(glm::vec3(0.5f, 0.5f, 0.5f)); //UpperLeft
-	positions.push_back(glm::vec3(0.5f, -0.5f, 0.5f)); //lowerLeft
-	positions.push_back(glm::vec3(0.5f, 0.0f, 0.0f)); //centrum --------------Up
-	positions.push_back(glm::vec3(0.5f, 0.5f, -0.5f)); //UpperRight
-	positions.push_back(glm::vec3(0.5f, 0.5f, 0.5f)); //UpperLeft
-
-	//cara Anterior
-	positions.push_back(glm::vec3(0.0f, 0.0f, 0.5f)); //centrum --------------Right
-	positions.push_back(glm::vec3(0.5f, -0.5f, 0.5f)); //lowerRight
-	positions.push_back(glm::vec3(0.5f, 0.5f, 0.5f)); //UpperRight
-	positions.push_back(glm::vec3(0.0f, 0.0f, 0.5f)); //centrum --------------Down
-	positions.push_back(glm::vec3(-0.5f, -0.5f, 0.5f)); //lowerLeft
-	positions.push_back(glm::vec3(0.5f, -0.5f, 0.5f)); //LowerRight
-	positions.push_back(glm::vec3(0.0f, 0.0f, 0.5f)); //centrum --------------Left
-	positions.push_back(glm::vec3(-0.5f, 0.5f, 0.5f)); //UpperLeft
-	positions.push_back(glm::vec3(-0.5f, -0.5f, 0.5f)); //lowerLeft
-	positions.push_back(glm::vec3(0.0f, 0.0f, 0.5f)); //centrum --------------Up
-	positions.push_back(glm::vec3(0.5f, 0.5f, 0.5f)); //UpperRight
-	positions.push_back(glm::vec3(-0.5f, 0.5f, 0.5f)); //UpperLeft
-	
-	//Cara lateral Izquierda
-	positions.push_back(glm::vec3(-0.5f, 0.0f, 0.0f)); //centrum --------------Right
-	positions.push_back(glm::vec3(-0.5f, -0.5f, -0.5f)); //lowerRight
-	positions.push_back(glm::vec3(-0.5f, 0.5f, -0.5f)); //UpperRight
-	positions.push_back(glm::vec3(-0.5f, 0.0f, 0.0f)); //centrum --------------Down
-	positions.push_back(glm::vec3(-0.5f, -0.5f, 0.5f)); //lowerLeft
-	positions.push_back(glm::vec3(-0.5f, -0.5f, -0.5f)); //LowerRight
-	positions.push_back(glm::vec3(-0.5f, 0.0f, 0.0f)); //centrum --------------Left
-	positions.push_back(glm::vec3(-0.5f, 0.5f, 0.5f)); //UpperLeft
-	positions.push_back(glm::vec3(-0.5f, -0.5f, 0.5f)); //lowerLeft
-	positions.push_back(glm::vec3(-0.5f, 0.0f, 0.0f)); //centrum --------------Up
-	positions.push_back(glm::vec3(-0.5f, 0.5f, -0.5f)); //UpperRight
-	positions.push_back(glm::vec3(-0.5f, 0.5f, 0.5f)); //UpperLeft
-
-	//Cara Arriba
-	positions.push_back(glm::vec3(0.0f, 0.5f, 0.0f)); //centrum --------------Right
-	positions.push_back(glm::vec3(0.5f, 0.5f, -0.5f)); //lowerRight
-	positions.push_back(glm::vec3(0.5f, 0.5f, 0.5f)); //UpperRight
-	positions.push_back(glm::vec3(0.0f, 0.5f, 0.0f)); //centrum --------------Down
-	positions.push_back(glm::vec3(-0.5f, 0.5f, -0.5f)); //lowerLeft
-	positions.push_back(glm::vec3(0.5f, 0.5f, -0.5f)); //LowerRight
-	positions.push_back(glm::vec3(0.0f, 0.5f, 0.0f)); //centrum --------------Left
-	positions.push_back(glm::vec3(-0.5f, 0.5f, 0.5f)); //UpperLeft
-	positions.push_back(glm::vec3(-0.5f, 0.5f, -0.5f)); //lowerLeft
-	positions.push_back(glm::vec3(0.0f, 0.5f, 0.0f)); //centrum --------------Up
-	positions.push_back(glm::vec3(0.5f, 0.5f, 0.5f)); //UpperRight
-	positions.push_back(glm::vec3(-0.5f, 0.5f, 0.5f)); //UpperLeft
-
-
-	//Cara Abajo
-	positions.push_back(glm::vec3(0.0f, -0.5f, 0.0f)); //centrum --------------Right
-	positions.push_back(glm::vec3(0.5f, -0.5f, -0.5f)); //lowerRight
-	positions.push_back(glm::vec3(0.5f, -0.5f, 0.5f)); //UpperRight
-	positions.push_back(glm::vec3(0.0f, -0.5f, 0.0f)); //centrum --------------Down
-	positions.push_back(glm::vec3(-0.5f, -0.5f, -0.5f)); //lowerLeft
-	positions.push_back(glm::vec3(0.5f, -0.5f, -0.5f)); //LowerRight
-	positions.push_back(glm::vec3(0.0f, -0.5f, 0.0f)); //centrum --------------Left
-	positions.push_back(glm::vec3(-0.5f, -0.5f, 0.5f)); //UpperLeft
-	positions.push_back(glm::vec3(-0.5f, -0.5f, -0.5f)); //lowerLeft
-	positions.push_back(glm::vec3(0.0f, -0.5f, 0.0f)); //centrum --------------Up
-	positions.push_back(glm::vec3(0.5f, -0.5f, 0.5f)); //UpperRight
-	positions.push_back(glm::vec3(-0.5f, -0.5f, 0.5f)); //UpperLeft
-
-	//COLORES
-	for (int i = 0; i< ULTRA; i++) 
-	{
-		if (i < 12)
-		{
-			colors.push_back(glm::vec3(0.0f, 1.0f, 0.0f));
-		}
-		else if (i >= 12 && i < 24)
-		{
-			colors.push_back(glm::vec3(0.0f, 0.0f, 1.0f));
-		}
-		else if (i >= 24 && i < 36)
-		{
-			colors.push_back(glm::vec3(1.0f, 0.0f, 0.0f));
-		}
-		else if (i >= 36 && i < 48)
-		{
-			colors.push_back(glm::vec3(1.0f, 0.0f, 1.0f));
-		}
-		else if (i >= 48 && i < 60)
-		{
-			colors.push_back(glm::vec3(1.0f, 1.0f, 0.0f));
-		}
-		else 
-		{
-			colors.push_back(glm::vec3(0.0f, 1.0f, 1.0f));
-		}
-	}
+	//los indices
+	vector<unsigned int> indices = { 0, 1, 2, 0, 3, 4, 0, 5, 6, 0, 7, 8, 9, 10, 11, 9, 12, 13, 9, 14, 15, 9, 16, 17, 18, 19, 20,18, 21, 22,18, 23, 24,18, 25, 26, 27, 28, 29,27, 30, 31,27,  32, 33, 27, 34, 35, 36, 37, 38,36,  39, 40,36,  41, 42,36,  43, 44, 45, 46, 47,45, 48, 49,45, 50, 51,45, 52, 53 };
 
 	//queremis generar un manager
 	meshF.CreateMesh((GLint)ULTRA);
 	meshF.SetPositionAttribute(positions, GL_STATIC_DRAW, 0);
 	meshF.SetColorAttribute(colors, GL_STATIC_DRAW, 1);
+	meshF.SetIndices(indices, GL_STATIC_DRAW);
 
 	//Desactivamos el MNGR 
 	glBindVertexArray(0);
@@ -189,9 +187,8 @@ void Initialize()
 	sProgram.SetUniformf("Resolution", 400.0f, 400.0f);
 	sProgram.Deactivate();
 
-	_transform.SetRotation(0.0f, 0.0f, 90.0f);
-
-	_camera.SetOrtographic(1.0f,1.0f);
+	_transform.SetRotation(0.0f, 0.0f, 45.0f);
+	_camera.SetOrtographic(6.0f,1.0f);
 }
 
 void GameLoop() 
@@ -203,9 +200,8 @@ void GameLoop()
 	//esta es la linea que hace rotar 
 	//el true o false hace que rote con respecto al mundo o no 
 
-	//_camera.MoveForward(0.0001f);
-	_transform.Rotate(0.01f, 0.01f, 0.01f, false);
-	//_transform.Rotate(0.0f, 0.01f, 0.0f, true );
+	//_camera.MoveForward(0.1f);
+	_transform.Rotate(0.01f, 0.04f, 0.01f, true);
 
 	//activamos con rl manafer
 	//glUseProgram(shaderProgram);
@@ -290,3 +286,6 @@ int main(int argc, char* argv[])
 	   
 	return 0;
 }
+
+
+
