@@ -38,6 +38,10 @@ Mesh meshF;
 
 //LO del transform
 Transform _transform;
+Transform _transform2;
+Transform _transform3; 
+Transform _transform4;
+Transform _transform5;
 Camera _camera;
 
 //se obtuvo la informacion de #pragma region de: https://msdn.microsoft.com/en-us/library/b6xkz944.aspx
@@ -193,8 +197,32 @@ void Initialize()
 	sProgram.SetUniformf("Resolution", 400.0f, 400.0f);
 	sProgram.Deactivate();
 
-	_transform.SetRotation(0.0f, 0.0f, 45.0f);
-	_camera.SetOrtographic(6.0f,1.0f);
+
+#pragma region Transforms
+
+	//Apilados
+	_transform.SetRotation(0.0f, 180.0f, 0.0f);
+
+	//_transform2.SetScale(0.5f, 0.5f, 0.5f);
+	_transform2.SetPosition(0.0f, 6.0f, 0.0f);
+	_transform2.SetRotation(0.0f, 0.0f, 0.0f);
+	//---------------------------------
+
+	//PISO
+	_transform3.SetScale(30.0f, 0.5f, 30.0f);
+	_transform3.SetPosition(8.0f, -10.0f, 0.0f);
+	_transform3.SetRotation(0.0f, 0.0f, 0.0f);
+
+	_transform4.SetPosition(-20.0f, 6.0f, 5.0f);
+
+	_transform5.SetPosition(-20.0f, 16.0f, 5.0f);
+
+	//_camera.SetOrtographic(10.0f,1.0f);
+	
+	_camera.SetPosition(0.0f, 0.0f, 40.0f);
+	_camera.MoveUp(15.0f);
+
+#pragma endregion 
 }
 
 void GameLoop() 
@@ -207,18 +235,36 @@ void GameLoop()
 	//el true o false hace que rote con respecto al mundo o no 
 
 	//_camera.MoveForward(0.1f);
-	_transform.Rotate(0.01f, 0.04f, 0.01f, true);
+	//_transform.Rotate(0.01f, 0.04f, 0.01f, true);
+	//_transform2.Rotate(0.0f, 0.04f, 0.0f, true);
+	_camera.Rotate(0.0f, 0.001f, 0.00f, false);
+
+	_transform4.Rotate(0.0f, 0.1f, 0.0f, false);
+	_transform5.Rotate(0.0f, -0.1f, 0.0f, false);
 
 	//activamos con rl manafer
 	//glUseProgram(shaderProgram);
 	sProgram.Activate();
 	//sProgram.SetUniformMatrix("modelMatrix", _transform.GetModelMatrix());
-	sProgram.SetUniformMatrix("mvpMatrix", _camera.GetViewProjection() * _transform.GetModelMatrix());
 
-	//activamos el manager y se activan los dbos asociados automaticamente
-	//metodo, desde cual y cuantos verticesa dibujar
-	//MGMT DIES
+	//ESTE TRANSFORM ME DICE QUE PUN
+	sProgram.SetUniformMatrix("mvpMatrix", _camera.GetViewProjection() * _transform.GetModelMatrix());
 	meshF.Draw(GL_TRIANGLES);
+
+	sProgram.SetUniformMatrix("mvpMatrix", _camera.GetViewProjection() * _transform2.GetModelMatrix());
+	meshF.Draw(GL_TRIANGLES);
+
+	sProgram.SetUniformMatrix("mvpMatrix", _camera.GetViewProjection() * _transform3.GetModelMatrix());
+	meshF.Draw(GL_TRIANGLES);
+
+	sProgram.SetUniformMatrix("mvpMatrix", _camera.GetViewProjection() * _transform4.GetModelMatrix());
+	meshF.Draw(GL_TRIANGLES);
+
+	sProgram.SetUniformMatrix("mvpMatrix", _camera.GetViewProjection() * _transform5.GetModelMatrix());
+	meshF.Draw(GL_TRIANGLES);
+	
+	//sProgram.SetUniformMatrix("mvpMatrix", _camera.GetViewProjection() * _transform.GetModelMatrix());
+	//meshF.Draw(GL_TRIANGLES);
 
 	//MGMT DIES AGGAIN
 	sProgram.Deactivate();
