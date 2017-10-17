@@ -25,23 +25,24 @@ GLuint vao;
 
 //MANAGER DE los shaders (shaderProgram)
 GLuint shaderProgram;
-int g = 9;
-int ULTRA = g * 6;
+int g = 1;
+int ULTRA = g * 5;
 
 //animacion
 float vertsPerFrame = 0.0f;
-float delta = 0.08f;
+float delta = 0.0f;
+float delta2 = 0.0f;
+bool d2 = false;
+float MAN = (delta2 / 360) / 2;
+
 
 //declaro shader program y mesh
 ShaderProgram sProgram;
-Mesh meshF;
+Mesh geometria1;
 
 //LO del transform
 Transform _transform;
 Transform _transform2;
-Transform _transform3; 
-Transform _transform4;
-Transform _transform5;
 Camera _camera;
 
 //se obtuvo la informacion de #pragma region de: https://msdn.microsoft.com/en-us/library/b6xkz944.aspx
@@ -55,29 +56,23 @@ vector<vec3> colores()
 	std::vector<glm::vec3> colors;
 	for (int i = 0; i< ULTRA; i++)
 	{
-		if (i < g)
+		switch (i)
 		{
+		case 0:
 			colors.push_back(glm::vec3(0.0f, 1.0f, 0.0f));
-		}
-		else if (i >= g && i < (g * 2))
-		{
+			break;
+		case 1:
 			colors.push_back(glm::vec3(0.0f, 0.0f, 1.0f));
-		}
-		else if (i >= (g * 2) && i < (g * 3))
-		{
+			break;
+		case 2:
 			colors.push_back(glm::vec3(1.0f, 0.0f, 0.0f));
-		}
-		else if (i >= (g * 3) && i < (g * 4))
-		{
-			colors.push_back(glm::vec3(1.0f, 0.0f, 1.0f));
-		}
-		else if (i >= (g * 4) && i < (g * 5))
-		{
+			break;
+		case 3:
 			colors.push_back(glm::vec3(1.0f, 1.0f, 0.0f));
-		}
-		else
-		{
+			break;
+		case 4:
 			colors.push_back(glm::vec3(0.0f, 1.0f, 1.0f));
+			break;
 		}
 	}
 	return colors;
@@ -88,71 +83,11 @@ vector<vec3> posiciones()
 	//Esto es un CUBO 
 	std::vector<glm::vec3> positions;
 	//cara posterior
-	positions.push_back(glm::vec3(0.0f, 0.0f, -3.0f)); //centrum
-	positions.push_back(glm::vec3(3.0f, -3.0f, -3.0f)); //lowerRight
-	positions.push_back(glm::vec3(3.0f, 3.0f, -3.0f)); //UpperRight
-	positions.push_back(glm::vec3(-3.0f, -3.0f, -3.0f)); //lowerLeft
-	positions.push_back(glm::vec3(3.0f, -3.0f, -3.0f)); //LowerRight
-	positions.push_back(glm::vec3(-3.0f, 3.0f, -3.0f)); //UpperLeft
-	positions.push_back(glm::vec3(-3.0f, -3.0f, -3.0f)); //lowerLeft
-	positions.push_back(glm::vec3(3.0f, 3.0f, -3.0f)); //UpperRight
-	positions.push_back(glm::vec3(-3.0f, 3.0f, -3.0f)); //UpperLeft
-
-														//Cara lateral Derecha
-	positions.push_back(glm::vec3(3.0f, 0.0f, 0.0f)); //centrum 
-	positions.push_back(glm::vec3(3.0f, -3.0f, -3.0f)); //lowerRight
-	positions.push_back(glm::vec3(3.0f, 3.0f, -3.0f)); //UpperRight
-	positions.push_back(glm::vec3(3.0f, -3.0f, 3.0f)); //lowerLeft
-	positions.push_back(glm::vec3(3.0f, -3.0f, -3.0f)); //LowerRight
-	positions.push_back(glm::vec3(3.0f, 3.0f, 3.0f)); //UpperLeft
-	positions.push_back(glm::vec3(3.0f, -3.0f, 3.0f)); //lowerLeft
-	positions.push_back(glm::vec3(3.0f, 3.0f, -3.0f)); //UpperRight
-	positions.push_back(glm::vec3(3.0f, 3.0f, 3.0f)); //UpperLeft
-
-													  //cara Anterior
-	positions.push_back(glm::vec3(0.0f, 0.0f, 3.0f)); //centrum 
-	positions.push_back(glm::vec3(3.0f, -3.0f, 3.0f)); //lowerRight
-	positions.push_back(glm::vec3(3.0f, 3.0f, 3.0f)); //UpperRight
-	positions.push_back(glm::vec3(-3.0f, -3.0f, 3.0f)); //lowerLeft
-	positions.push_back(glm::vec3(3.0f, -3.0f, 3.0f)); //LowerRight
-	positions.push_back(glm::vec3(-3.0f, 3.0f, 3.0f)); //UpperLeft
-	positions.push_back(glm::vec3(-3.0f, -3.0f, 3.0f)); //lowerLeft
-	positions.push_back(glm::vec3(3.0f, 3.0f, 3.0f)); //UpperRight
-	positions.push_back(glm::vec3(-3.0f, 3.0f, 3.0f)); //UpperLeft
-
-													   //Cara lateral Izquierda
-	positions.push_back(glm::vec3(-3.0f, 0.0f, 0.0f)); //centrum 
-	positions.push_back(glm::vec3(-3.0f, -3.0f, -3.0f)); //lowerRight
-	positions.push_back(glm::vec3(-3.0f, 3.0f, -3.0f)); //UpperRight
-	positions.push_back(glm::vec3(-3.0f, -3.0f, 3.0f)); //lowerLeft
-	positions.push_back(glm::vec3(-3.0f, -3.0f, -3.0f)); //LowerRight
-	positions.push_back(glm::vec3(-3.0f, 3.0f, 3.0f)); //UpperLeft
-	positions.push_back(glm::vec3(-3.0f, -3.0f, 3.0f)); //lowerLeft
-	positions.push_back(glm::vec3(-3.0f, 3.0f, -3.0f)); //UpperRight
-	positions.push_back(glm::vec3(-3.0f, 3.0f, 3.0f)); //UpperLeft
-
-													   //Cara Arriba
-	positions.push_back(glm::vec3(0.0f, 3.0f, 0.0f)); //centrum 
-	positions.push_back(glm::vec3(3.0f, 3.0f, -3.0f)); //lowerRight
-	positions.push_back(glm::vec3(3.0f, 3.0f, 3.0f)); //UpperRight
-	positions.push_back(glm::vec3(-3.0f, 3.0f, -3.0f)); //lowerLeft
-	positions.push_back(glm::vec3(3.0f, 3.0f, -3.0f)); //LowerRight
-	positions.push_back(glm::vec3(-3.0f, 3.0f, 3.0f)); //UpperLeft
-	positions.push_back(glm::vec3(-3.0f, 3.0f, -3.0f)); //lowerLeft
-	positions.push_back(glm::vec3(3.0f, 3.0f, 3.0f)); //UpperRight
-	positions.push_back(glm::vec3(-3.0f, 3.0f, 3.0f)); //UpperLeft
-
-													   //Cara Abajo
-	positions.push_back(glm::vec3(0.0f, -3.0f, 0.0f)); //centrum 
-	positions.push_back(glm::vec3(3.0f, -3.0f, -3.0f)); //lowerRight
-	positions.push_back(glm::vec3(3.0f, -3.0f, 3.0f)); //UpperRight
-	positions.push_back(glm::vec3(-3.0f, -3.0f, -3.0f)); //lowerLeft
-	positions.push_back(glm::vec3(3.0f, -3.0f, -3.0f)); //LowerRight
-	positions.push_back(glm::vec3(-3.0f, -3.0f, 3.0f)); //UpperLeft
-	positions.push_back(glm::vec3(-3.0f, -3.0f, -3.0f)); //lowerLeft
-	positions.push_back(glm::vec3(3.0f, -3.0f, 3.0f)); //UpperRight
-	positions.push_back(glm::vec3(-3.0f, -3.0f, 3.0f)); //UpperLeft
-
+	positions.push_back(glm::vec3( 0.0f,  1.0f,  0.0f)); //centrum
+	positions.push_back(glm::vec3( 1.0f, -1.0f,  1.0f)); 
+	positions.push_back(glm::vec3( 1.0f, -1.0f, -1.0f)); 
+	positions.push_back(glm::vec3(-1.0f, -1.0f,  1.0f)); 
+	positions.push_back(glm::vec3(-1.0f, -1.0f, -1.0f)); 
 	return positions;
 }
 
@@ -168,17 +103,15 @@ void Initialize()
 	std::vector<glm::vec3> colors = colores();
 
 	//los indices
-	vector<unsigned int> indices = { 0, 1, 2, 0, 3, 4, 0, 5, 6, 0, 7, 8, 9, 10, 11, 9, 12, 13, 9, 14, 15, 9, 16, 17, 18, 19, 20,18, 21, 22,18, 23, 24,18, 25, 26, 27, 28, 29,27, 30, 31,27,  32, 33, 27, 34, 35, 36, 37, 38,36,  39, 40,36,  41, 42,36,  43, 44, 45, 46, 47,45, 48, 49,45, 50, 51,45, 52, 53 };
-
+	vector<unsigned int> indices = { 0, 1, 2,  0, 2, 4,  0, 4, 3, 0, 3, 1, 1,3,4,1,2,4 };
 	//queremis generar un manager
-	meshF.CreateMesh((GLint)ULTRA);
-	meshF.SetPositionAttribute(positions, GL_STATIC_DRAW, 0);
-	meshF.SetColorAttribute(colors, GL_STATIC_DRAW, 1);
-	meshF.SetIndices(indices, GL_STATIC_DRAW);
+	geometria1.CreateMesh((GLint)ULTRA);
+	geometria1.SetPositionAttribute(positions, GL_STATIC_DRAW, 0);
+	geometria1.SetColorAttribute(colors, GL_STATIC_DRAW, 1);
+	geometria1.SetIndices(indices, GL_STATIC_DRAW);
 
 	//Desactivamos el MNGR 
 	glBindVertexArray(0);
-
 
 	sProgram.CreateProgram();
 	sProgram.Activate();
@@ -199,29 +132,12 @@ void Initialize()
 
 
 #pragma region Transforms
+	_camera.SetPosition(0.0f, 10.0f,15.0f);
+	_camera.Rotate(320.0f, 0.0f,0.0f, false);
+	//_camera.Yaw(-120.0f);
 
-	//Apilados
-	_transform.SetRotation(0.0f, 180.0f, 0.0f);
-
-	//_transform2.SetScale(0.5f, 0.5f, 0.5f);
-	_transform2.SetPosition(0.0f, 6.0f, 0.0f);
-	_transform2.SetRotation(0.0f, 0.0f, 0.0f);
-	//---------------------------------
-
-	//PISO
-	_transform3.SetScale(30.0f, 0.5f, 30.0f);
-	_transform3.SetPosition(8.0f, -10.0f, 0.0f);
-	_transform3.SetRotation(0.0f, 0.0f, 0.0f);
-
-	_transform4.SetPosition(-20.0f, 6.0f, 5.0f);
-
-	_transform5.SetPosition(-20.0f, 16.0f, 5.0f);
-
-	//_camera.SetOrtographic(10.0f,1.0f);
-	
-	_camera.SetPosition(0.0f, 0.0f, 40.0f);
-	_camera.MoveUp(15.0f);
-
+	_transform.SetScale(3.0f,3.0f,3.0f);
+	_transform2.SetScale(0.5f, 0.5f, 0.5f);
 #pragma endregion 
 }
 
@@ -231,47 +147,62 @@ void GameLoop()
 	//siempre hcerlo alinicio del frame
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	if (delta == 360)
+	{
+		delta = 0;
+	}
 	//esta es la linea que hace rotar 
 	//el true o false hace que rote con respecto al mundo o no 
 
 	//_camera.MoveForward(0.1f);
-	//_transform.Rotate(0.01f, 0.04f, 0.01f, true);
-	//_transform2.Rotate(0.0f, 0.04f, 0.0f, true);
-	_camera.Rotate(0.0f, 0.001f, 0.00f, false);
+	_transform.Rotate(0.005f, -0.005f, 0.005f, false);
+	float x, y;
+	x = 5 * (glm::cos(glm::radians((float)(delta))));
+	y = 5 * (glm::sin(glm::radians((float)(delta))));
+	_transform.SetPosition(x, 0.0f, y);
 
-	_transform4.Rotate(0.0f, 0.1f, 0.0f, false);
-	_transform5.Rotate(0.0f, -0.1f, 0.0f, false);
+	_transform2.Rotate(-0.01f, 0.01f, -0.01f, false);
+	_transform2.SetPosition(0.0f, 0.0f, 0.0f);
+	_transform2.SetScale(0.5f+MAN, 0.5f + MAN, 0.5f + MAN);
 
 	//activamos con rl manafer
 	//glUseProgram(shaderProgram);
 	sProgram.Activate();
 	//sProgram.SetUniformMatrix("modelMatrix", _transform.GetModelMatrix());
 
-	//ESTE TRANSFORM ME DICE QUE PUN
+	//EGeometria 1
 	sProgram.SetUniformMatrix("mvpMatrix", _camera.GetViewProjection() * _transform.GetModelMatrix());
-	meshF.Draw(GL_TRIANGLES);
+	geometria1.Draw(GL_TRIANGLES);
 
+	//EGeometria 2
 	sProgram.SetUniformMatrix("mvpMatrix", _camera.GetViewProjection() * _transform2.GetModelMatrix());
-	meshF.Draw(GL_TRIANGLES);
+	geometria1.Draw(GL_TRIANGLES);
 
-	sProgram.SetUniformMatrix("mvpMatrix", _camera.GetViewProjection() * _transform3.GetModelMatrix());
-	meshF.Draw(GL_TRIANGLES);
-
-	sProgram.SetUniformMatrix("mvpMatrix", _camera.GetViewProjection() * _transform4.GetModelMatrix());
-	meshF.Draw(GL_TRIANGLES);
-
-	sProgram.SetUniformMatrix("mvpMatrix", _camera.GetViewProjection() * _transform5.GetModelMatrix());
-	meshF.Draw(GL_TRIANGLES);
 	
-	//sProgram.SetUniformMatrix("mvpMatrix", _camera.GetViewProjection() * _transform.GetModelMatrix());
-	//meshF.Draw(GL_TRIANGLES);
-
-	//MGMT DIES AGGAIN
 	sProgram.Deactivate();
 
 	//Cuando terminamos de renderear, cambiampos buffers
 	glutSwapBuffers();
 	
+	delta+= 0.01f;
+	if (delta2 >= 360)
+	{
+		d2 = true;
+	}
+	if (delta2 <= -180)
+	{
+		d2 = false;
+	}
+
+	if(d2 == true)
+	{
+		delta2-= 0.1f;
+	}
+	else 
+	{
+		delta2 += 0.1f;
+	}
+	MAN = (delta2 / 360) / 2;
 }
 
 void ReshapeWindow(int width, int height) 
