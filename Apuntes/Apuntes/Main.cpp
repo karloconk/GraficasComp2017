@@ -1,3 +1,10 @@
+/*********************************************************
+Materia: Gráficas Computacionales
+Fecha: 16 de Octubre del 2017
+Autor: A01374526 José Karlo Hurtado Corona
+Autor: A01374645 Javier Esponda Hernandez
+*********************************************************/
+
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 #include <iostream>
@@ -12,11 +19,6 @@
 
 using namespace std;
 using namespace glm;
-/*********************************************************
-Materia: Gráficas Computacionales
-Fecha: 16 de Octubre del 2017
-Autor: A01374526 José Karlo Hurtado Corona
-*********************************************************/
 
 #pragma region Global Scope vars
 
@@ -78,16 +80,16 @@ vector<vec3> colores()
 	return colors;
 }
 
-vector<vec3> posiciones() 
+vector<vec3> posiciones()
 {
-	//Esto es un CUBO 
+	//Esto es una PIRAMIDE
 	std::vector<glm::vec3> positions;
 	//cara posterior
-	positions.push_back(glm::vec3( 0.0f,  1.0f,  0.0f)); //centrum
-	positions.push_back(glm::vec3( 1.0f, -1.0f,  1.0f)); 
-	positions.push_back(glm::vec3( 1.0f, -1.0f, -1.0f)); 
-	positions.push_back(glm::vec3(-1.0f, -1.0f,  1.0f)); 
-	positions.push_back(glm::vec3(-1.0f, -1.0f, -1.0f)); 
+	positions.push_back(glm::vec3(0.0f, 1.0f, 0.0f)); //centrum
+	positions.push_back(glm::vec3(1.0f, -1.0f, 1.0f));
+	positions.push_back(glm::vec3(1.0f, -1.0f, -1.0f));
+	positions.push_back(glm::vec3(-1.0f, -1.0f, 1.0f));
+	positions.push_back(glm::vec3(-1.0f, -1.0f, -1.0f));
 	return positions;
 }
 
@@ -104,7 +106,7 @@ void Initialize()
 
 	//los indices
 	vector<unsigned int> indices = { 0, 1, 2,  0, 2, 4,  0, 4, 3, 0, 3, 1, 1,3,4,1,2,4 };
-	//queremis generar un manager
+	//queremos generar un manager
 	geometria1.CreateMesh((GLint)ULTRA);
 	geometria1.SetPositionAttribute(positions, GL_STATIC_DRAW, 0);
 	geometria1.SetColorAttribute(colors, GL_STATIC_DRAW, 1);
@@ -125,23 +127,23 @@ void Initialize()
 	sProgram.SetAttribute(1, "VertexColor");
 
 	//se cheka compatibilidad man
-	sProgram.LinkProgram(); 
+	sProgram.LinkProgram();
 
 	sProgram.SetUniformf("Resolution", 400.0f, 400.0f);
 	sProgram.Deactivate();
 
 
 #pragma region Transforms
-	_camera.SetPosition(0.0f, 10.0f,15.0f);
-	_camera.Rotate(320.0f, 0.0f,0.0f, false);
+	_camera.SetPosition(0.0f, 0.0f, 25.0f);
+	//_camera.Rotate(320.0f, 0.0f, 0.0f, false);
 	//_camera.Yaw(-120.0f);
 
-	_transform.SetScale(3.0f,3.0f,3.0f);
+	_transform.SetScale(3, 3, 3);
 	_transform2.SetScale(0.5f, 0.5f, 0.5f);
 #pragma endregion 
 }
 
-void GameLoop() 
+void GameLoop()
 {
 	//Limpiamos el buffer de color y de profundidad
 	//siempre hcerlo alinicio del frame
@@ -155,15 +157,15 @@ void GameLoop()
 	//el true o false hace que rote con respecto al mundo o no 
 
 	//_camera.MoveForward(0.1f);
-	_transform.Rotate(0.005f, -0.005f, 0.005f, false);
+	_transform.Rotate(0.005, -0.005f, 0.005f, false);
 	float x, y;
 	x = 5 * (glm::cos(glm::radians((float)(delta))));
 	y = 5 * (glm::sin(glm::radians((float)(delta))));
-	_transform.SetPosition(x, 0.0f, y);
+	_transform.SetPosition(x, y, 0);
 
 	_transform2.Rotate(-0.01f, 0.01f, -0.01f, false);
 	_transform2.SetPosition(0.0f, 0.0f, 0.0f);
-	_transform2.SetScale(0.5f+MAN, 0.5f + MAN, 0.5f + MAN);
+	_transform2.SetScale(0.5f + MAN, 0.5f + MAN, 0.5f + MAN);
 
 	//activamos con rl manafer
 	//glUseProgram(shaderProgram);
@@ -178,13 +180,13 @@ void GameLoop()
 	sProgram.SetUniformMatrix("mvpMatrix", _camera.GetViewProjection() * _transform2.GetModelMatrix());
 	geometria1.Draw(GL_TRIANGLES);
 
-	
+
 	sProgram.Deactivate();
 
 	//Cuando terminamos de renderear, cambiampos buffers
 	glutSwapBuffers();
-	
-	delta+= 0.01f;
+
+	delta += 0.01f;
 	if (delta2 >= 360)
 	{
 		d2 = true;
@@ -194,23 +196,23 @@ void GameLoop()
 		d2 = false;
 	}
 
-	if(d2 == true)
+	if (d2 == true)
 	{
-		delta2-= 0.1f;
+		delta2 -= 0.1f;
 	}
-	else 
+	else
 	{
 		delta2 += 0.1f;
 	}
 	MAN = (delta2 / 360) / 2;
 }
 
-void ReshapeWindow(int width, int height) 
+void ReshapeWindow(int width, int height)
 {
 	glViewport(0, 0, width, height);
 }
 
-void Idle() 
+void Idle()
 {
 	//Cuando opengl entra ne modo de reposo 
 	//le decimos que vuelva a llamar el gameloop 
@@ -227,8 +229,8 @@ int main(int argc, char* argv[])
 	//En este caso se usa pipeline Programable
 	glutInitContextProfile(GLUT_CORE_PROFILE);
 	//SOLICITANDO VERSION 4.4 DE GL 
-	glutInitContextVersion(4,4);
-	glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE,GLUT_ACTION_GLUTMAINLOOP_RETURNS);
+	glutInitContextVersion(4, 4);
+	glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_GLUTMAINLOOP_RETURNS);
 	//freeglut nos permite configurar eventos que ocurren en la ventana
 	//nos interesa cuando alguien cierra la ventana, en ese caso se deja de renderear la escena.
 
@@ -236,13 +238,13 @@ int main(int argc, char* argv[])
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE);
 
 	//la ventana 
-	glutInitWindowSize(400,400);
+	glutInitWindowSize(400, 400);
 
 	//su titulo e inicialización
 	glutCreateWindow("HELLO WORLD GL ");
 
 	glutDisplayFunc(GameLoop);
-	
+
 	//asociamos una funicon para el cambio de resolucion de la ventana
 	//se va amandar a llamar cuando alguioen cambie el tamaño
 	glutReshapeFunc(ReshapeWindow);
@@ -252,7 +254,7 @@ int main(int argc, char* argv[])
 
 	//Config OpenGL
 	//este es el color por default en el buffer del color
-	glClearColor(1.0f,1.0f,0.5f,1.0f);
+	glClearColor(1.0f, 1.0f, 0.5f, 1.0f);
 
 	glEnable(GL_DEPTH_TEST);
 	//borrado de caras traseras, todos los triangulos CCW
@@ -266,9 +268,6 @@ int main(int argc, char* argv[])
 
 	//Inicia la aplicación, el main se pausa en esta linea hasta que se cierre la ventana
 	glutMainLoop();
-	   
+
 	return 0;
 }
-
-
-
