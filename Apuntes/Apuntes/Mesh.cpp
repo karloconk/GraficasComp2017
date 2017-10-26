@@ -22,6 +22,7 @@ Mesh::Mesh()
 	_vertexCount = 0;
 	_indicesCount = 0;
 	_indicesBufferObject = 0;
+	_normalVBO = 0;
 }
 
 Mesh::~Mesh()
@@ -29,6 +30,7 @@ Mesh::~Mesh()
 	glDeleteVertexArrays(1, &_vertexArrayObject);
 	glDeleteBuffers(1, &_positionsVertexBufferObject);
 	glDeleteBuffers(1, &_colorsVertexBufferObject);
+	glDeleteBuffers(1, &_normalVBO);
 	glBindVertexArray(0);
 }
 
@@ -52,6 +54,16 @@ void Mesh::Draw(GLenum primitive)
 		glBindVertexArray(_vertexArrayObject);
 		glDrawElements(primitive, _indicesCount, GL_UNSIGNED_INT, nullptr);
 		glBindVertexArray(0);
+	}
+}
+
+void Mesh::SetNormalAttribute(vector<vec3> normals, GLenum usage, GLuint locationIndex)
+{
+	if (normals.empty() || normals.size() != _vertexCount)
+	{;}
+	else
+	{
+		SetAttributeData(_normalVBO, sizeof(vec3)*normals.size(), normals.data(), usage, locationIndex, 3);
 	}
 }
 

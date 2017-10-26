@@ -2,7 +2,7 @@
 Materia: Gráficas Computacionales
 Fecha: 16 de Octubre del 2017
 Autor: A01374526 José Karlo Hurtado Corona
-Autor: A01374645 Javier Esponda Hernandez
+Autor: 
 *********************************************************/
 
 #include <GL/glew.h>
@@ -27,8 +27,8 @@ GLuint vao;
 
 //MANAGER DE los shaders (shaderProgram)
 GLuint shaderProgram;
-int g = 1;
-int ULTRA = g * 5;
+int g = 4;
+int ULTRA = g *6;
 
 //animacion
 float vertsPerFrame = 0.0f;
@@ -37,6 +37,8 @@ float delta2 = 0.0f;
 bool d2 = false;
 float MAN = (delta2 / 360) / 2;
 
+//Posicion de la camara
+vec3 camaraPos = vec3(0.0f, 0.0f, 50.0f);
 
 //declaro shader program y mesh
 ShaderProgram sProgram;
@@ -51,30 +53,37 @@ Camera _camera;
 
 #pragma endregion 
 
-//LOS COLORES Y LOS VERTICES
+#pragma region Colors Vertex Normals
+
 vector<vec3> colores()
 {
 	//COLORES Distintos para cada cara
 	std::vector<glm::vec3> colors;
 	for (int i = 0; i< ULTRA; i++)
 	{
-		switch (i)
+		if (i < g)
 		{
-		case 0:
 			colors.push_back(glm::vec3(0.0f, 1.0f, 0.0f));
-			break;
-		case 1:
+		}
+		else if (i >= g && i < (g * 2))
+		{
 			colors.push_back(glm::vec3(0.0f, 0.0f, 1.0f));
-			break;
-		case 2:
+		}
+		else if (i >= (g * 2) && i < (g * 3))
+		{
 			colors.push_back(glm::vec3(1.0f, 0.0f, 0.0f));
-			break;
-		case 3:
+		}
+		else if (i >= (g * 3) && i < (g * 4))
+		{
+			colors.push_back(glm::vec3(1.0f, 0.0f, 1.0f));
+		}
+		else if (i >= (g * 4) && i < (g * 5))
+		{
 			colors.push_back(glm::vec3(1.0f, 1.0f, 0.0f));
-			break;
-		case 4:
+		}
+		else
+		{
 			colors.push_back(glm::vec3(0.0f, 1.0f, 1.0f));
-			break;
 		}
 	}
 	return colors;
@@ -82,104 +91,165 @@ vector<vec3> colores()
 
 vector<vec3> posiciones()
 {
-	//Esto es una PIRAMIDE
+	//Esto es un CUBO
 	std::vector<glm::vec3> positions;
-	//cara posterior
-	positions.push_back(glm::vec3(0.0f, 1.0f, 0.0f)); //centrum
-	positions.push_back(glm::vec3(1.0f, -1.0f, 1.0f));
-	positions.push_back(glm::vec3(1.0f, -1.0f, -1.0f));
-	positions.push_back(glm::vec3(-1.0f, -1.0f, 1.0f));
-	positions.push_back(glm::vec3(-1.0f, -1.0f, -1.0f));
+	//adelante
+	positions.push_back(vec3(3.0f, -3.0f, 3.0f));
+	positions.push_back(vec3(3.0f, 3.0f, 3.0f));
+	positions.push_back(vec3(-3.0f, -3.0f, 3.0f));
+	positions.push_back(vec3(-3.0f, 3.0f, 3.0f));
+	//atras
+	positions.push_back(vec3(3.0f, -3.0f, -3.0f));
+	positions.push_back(vec3(3.0f, 3.0f, -3.0f));
+	positions.push_back(vec3(-3.0f, -3.0f, -3.0f));
+	positions.push_back(vec3(-3.0f, 3.0f, -3.0f));
+	//Derecha
+	positions.push_back(vec3(3.0f, -3.0f, -3.0f));
+	positions.push_back(vec3(3.0f, 3.0f, -3.0f));
+	positions.push_back(vec3(3.0f, -3.0f, 3.0f));
+	positions.push_back(vec3(3.0f, 3.0f, 3.0f));
+	//izq
+	positions.push_back(vec3(-3.0f, -3.0f, -3.0f));
+	positions.push_back(vec3(-3.0f, 3.0f, -3.0f));
+	positions.push_back(vec3(-3.0f, -3.0f, 3.0f));
+	positions.push_back(vec3(-3.0f, 3.0f, 3.0f));
+	//arriba
+	positions.push_back(vec3(3.0f, 3.0f, 3.0f));
+	positions.push_back(vec3(3.0f, 3.0f, -3.0f));
+	positions.push_back(vec3(-3.0f, 3.0f, 3.0f));
+	positions.push_back(vec3(-3.0f, 3.0f, -3.0f));
+	//abajo
+	positions.push_back(vec3(3.0f, -3.0f, 3.0f));
+	positions.push_back(vec3(3.0f, -3.0f, -3.0f));
+	positions.push_back(vec3(-3.0f, -3.0f, 3.0f));
+	positions.push_back(vec3(-3.0f, -3.0f, -3.0f));
+
 	return positions;
 }
+
+vector<vec3> normales()
+{
+	std::vector<glm::vec3> normals;
+	//Delantera
+	for (int i = 0; i < 4; i++) 
+	{
+		normals.push_back(glm::vec3(0.0f, 0.0f, 1.0f));
+	}
+	//atras
+	for (int i = 0; i < 4; i++)
+	{
+		normals.push_back(glm::vec3(0.0f, 0.0f, -1.0f));
+	}
+	//derecha
+	for (int i = 0; i < 4; i++)
+	{
+		normals.push_back(glm::vec3(1.0f, 0.0f, 0.0f));
+	}
+	//izq
+	for (int i = 0; i < 4; i++)
+	{
+		normals.push_back(glm::vec3(-1.0f, 0.0f, 0.0f));
+	}
+	//arriba
+	for (int i = 0; i < 4; i++)
+	{
+		normals.push_back(glm::vec3(0.0f, 1.0f, 0.0f));
+	}
+	//abajo
+	for (int i = 0; i < 4; i++)
+	{
+		normals.push_back(glm::vec3(0.0f, -1.0f, 0.0f));
+	}
+	return normals;
+}
+
+#pragma endregion 
 
 void Initialize()
 {
 	//---------+-----------------------------------------------+-------------
 	// creando toda la memoria una sola vez al inicio de la vida del programa.
-
-	//Creacion del atributo de posiciones de los vertices 
-	// lista de vec3
-	//CLARAMENTE en el CPU y RAM
-	std::vector<glm::vec3> positions = posiciones();
-	std::vector<glm::vec3> colors = colores();
-
 	//los indices
-	vector<unsigned int> indices = { 0, 1, 2,  0, 2, 4,  0, 4, 3, 0, 3, 1, 1,3,4,1,2,4 };
+	vector<unsigned int> indices = {0, 1, 2, 2, 1, 3, 4, 5, 6, 6, 5, 7, 8, 9, 10, 10, 9, 11, 12, 13, 14, 14, 13, 15, 16, 17, 18, 18, 17, 19, 20,21,22,22,21,23};
+
+	//Cosas de Luz -------------------------------+------------------+-------
+	vec3 LightColour = glm::vec3(1.0f, 1.0f, 1.0f);
+	vec3 lSource = glm::vec3(18.0f, 0.0f, 20.0f);
+
 	//queremos generar un manager
 	geometria1.CreateMesh((GLint)ULTRA);
-	geometria1.SetPositionAttribute(positions, GL_STATIC_DRAW, 0);
-	geometria1.SetColorAttribute(colors, GL_STATIC_DRAW, 1);
+	geometria1.SetPositionAttribute(posiciones(), GL_STATIC_DRAW, 0);
+	geometria1.SetColorAttribute(colores(), GL_STATIC_DRAW, 1);
+	geometria1.SetNormalAttribute(normales(), GL_STATIC_DRAW, 2);
 	geometria1.SetIndices(indices, GL_STATIC_DRAW);
 
 	//Desactivamos el MNGR 
 	glBindVertexArray(0);
 
 	sProgram.CreateProgram();
-	sProgram.Activate();
+	
 
 	//Vertex shader 
 	//-----------------------------------------
 	sProgram.AttachShader("Default.vert", GL_VERTEX_SHADER);
-
 	sProgram.AttachShader("Default.frag", GL_FRAGMENT_SHADER);
 	sProgram.SetAttribute(0, "VertexPosition");
 	sProgram.SetAttribute(1, "VertexColor");
+	sProgram.SetAttribute(2,  "VertexNormal");
 
 	//se cheka compatibilidad man
 	sProgram.LinkProgram();
 
+	sProgram.Activate();
 	sProgram.SetUniformf("Resolution", 400.0f, 400.0f);
+	sProgram.SetUniformf("LightColor", LightColour.x, LightColour.y, LightColour.z);
+	sProgram.SetUniformf("LightPosition", lSource.x, lSource.y, lSource.z);
+	sProgram.SetUniformf("CameraPosition", camaraPos.x, camaraPos.y, camaraPos.z);
+
 	sProgram.Deactivate();
 
 
 #pragma region Transforms
-	_camera.SetPosition(0.0f, 0.0f, 25.0f);
-	//_camera.Rotate(320.0f, 0.0f, 0.0f, false);
-	//_camera.Yaw(-120.0f);
 
-	_transform.SetScale(3, 3, 3);
-	_transform2.SetScale(0.5f, 0.5f, 0.5f);
+	_camera.SetPosition(camaraPos.x, camaraPos.y, camaraPos.z);
+	_transform.SetScale(2, 2, 2);
+	_transform.SetRotation(0.0f, 25.0f, 0.0f);
+	_transform2.SetScale(30.0f, 0.5f, 30.0f);
+	_transform2.SetPosition(0.0f, -15.0f, 0.0f);
+	_transform2.SetRotation(0.0f, 0.0f, 0.0f);
+
 #pragma endregion 
+
 }
 
 void GameLoop()
 {
 	//Limpiamos el buffer de color y de profundidad
-	//siempre hcerlo alinicio del frame
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	if (delta == 360)
 	{
 		delta = 0;
 	}
-	//esta es la linea que hace rotar 
-	//el true o false hace que rote con respecto al mundo o no 
+	_transform.Rotate(0.05, -0.05f, 0.05f, false);
 
-	//_camera.MoveForward(0.1f);
-	_transform.Rotate(0.005, -0.005f, 0.005f, false);
-	float x, y;
-	x = 5 * (glm::cos(glm::radians((float)(delta))));
-	y = 5 * (glm::sin(glm::radians((float)(delta))));
-	_transform.SetPosition(x, y, 0);
-
-	_transform2.Rotate(-0.01f, 0.01f, -0.01f, false);
-	_transform2.SetPosition(0.0f, 0.0f, 0.0f);
-	_transform2.SetScale(0.5f + MAN, 0.5f + MAN, 0.5f + MAN);
-
-	//activamos con rl manafer
-	//glUseProgram(shaderProgram);
 	sProgram.Activate();
-	//sProgram.SetUniformMatrix("modelMatrix", _transform.GetModelMatrix());
 
 	//EGeometria 1
+	mat4 matModelo = _transform.GetModelMatrix();
+	mat3 normalMatrix = glm::transpose(glm::inverse(mat3(_transform.GetModelMatrix())));
+	sProgram.SetUniformMatrix("modelMatrix", matModelo);
+	sProgram.SetUniformMatrix3("normalMatrix", normalMatrix);
 	sProgram.SetUniformMatrix("mvpMatrix", _camera.GetViewProjection() * _transform.GetModelMatrix());
 	geometria1.Draw(GL_TRIANGLES);
 
-	//EGeometria 2
+	////EGeometria 2
+	mat4 matModelo2 = _transform2.GetModelMatrix();
+	mat3 normalMatrix2 = glm::transpose(glm::inverse(mat3(_transform2.GetModelMatrix())));
+	sProgram.SetUniformMatrix("modelMatrix", matModelo2);
+	sProgram.SetUniformMatrix3("normalMatrix", normalMatrix2);
 	sProgram.SetUniformMatrix("mvpMatrix", _camera.GetViewProjection() * _transform2.GetModelMatrix());
 	geometria1.Draw(GL_TRIANGLES);
-
 
 	sProgram.Deactivate();
 
@@ -214,8 +284,7 @@ void ReshapeWindow(int width, int height)
 
 void Idle()
 {
-	//Cuando opengl entra ne modo de reposo 
-	//le decimos que vuelva a llamar el gameloop 
+	//Cuando opengl entra ne modo de reposo le decimos que vuelva a llamar el gameloop 
 	glutPostRedisplay();
 }
 
@@ -245,8 +314,7 @@ int main(int argc, char* argv[])
 
 	glutDisplayFunc(GameLoop);
 
-	//asociamos una funicon para el cambio de resolucion de la ventana
-	//se va amandar a llamar cuando alguioen cambie el tamaño
+	//asociamos una funicon para el cambio de resolucion de la ventana, se va amandar a llamar cuando alguien cambie el tamaño
 	glutReshapeFunc(ReshapeWindow);
 	glutIdleFunc(Idle);
 	//inicializa glew y se encarga de obtener el api de opengl de nuestra video card
@@ -261,7 +329,6 @@ int main(int argc, char* argv[])
 	//glEnable(GL_CULL_FACE);
 	//No dibujar las caras de atras
 	//glEnable(GL_BACK);
-	//std::cout << glGetString(GL_VERSION) << std::endl;
 
 	//config inicial del programa.
 	Initialize();
