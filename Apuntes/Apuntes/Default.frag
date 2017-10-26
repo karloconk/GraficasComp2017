@@ -25,4 +25,3 @@ void main()
 
 //referencias de las funciones utilizadas
 //http://www.shaderific.com/glsl-functions/
-//https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/normalize.xhtml

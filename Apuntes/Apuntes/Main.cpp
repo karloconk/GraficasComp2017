@@ -1,8 +1,8 @@
 /*********************************************************
 Materia: Gráficas Computacionales
-Fecha: 16 de Octubre del 2017
+Fecha: 26 de Octubre del 2017
 Autor: A01374526 José Karlo Hurtado Corona
-Autor: 
+Autor: A01375051 Marina Fernanda Torres Gomez
 *********************************************************/
 
 #include <GL/glew.h>
