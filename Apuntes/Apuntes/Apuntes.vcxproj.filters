@@ -48,6 +48,9 @@
     <ClInclude Include="Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Texture2D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Circle.cpp">
@@ -80,6 +83,9 @@
     <ClCompile Include="Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Texture2D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Default.vert">
@@ -94,5 +100,19 @@
     <None Include="DiscardCenter.frag">
       <Filter>Source Files\Shaders</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="caja.jpg">
+      <Filter>Source Files</Filter>
+    </Image>
+    <Image Include="cerdito.jpg">
+      <Filter>Source Files</Filter>
+    </Image>
+    <Image Include="base.jpg">
+      <Filter>Source Files</Filter>
+    </Image>
+    <Image Include="crash.png">
+      <Filter>Source Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

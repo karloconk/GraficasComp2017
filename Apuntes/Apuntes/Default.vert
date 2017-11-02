@@ -3,10 +3,12 @@
 in vec3 VertexPosition;
 in vec3 VertexColor;
 in vec3 VertexNormal;
+in vec2 VertexTexCoord;
 
 out vec3 InterpolatedNormal;
 out vec3 InterpolatedColor;
 out vec3 pixelPosition;
+out vec2 InterpolatedTexCoord;
 
 uniform mat4 mvpMatrix;
 uniform mat4 modelMatrix;
@@ -18,4 +20,5 @@ void main()
 	gl_Position = mvpMatrix * vec4(VertexPosition, 1.0f);
 	pixelPosition = vec3(modelMatrix * vec4(VertexPosition, 1.0f));
 	InterpolatedNormal = normalMatrix * VertexNormal;
+	InterpolatedTexCoord = VertexTexCoord;
 }

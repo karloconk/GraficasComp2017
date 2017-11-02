@@ -16,6 +16,9 @@ Autor: A01375051 Marina Fernanda Torres Gomez
 #include "Shader.h"
 #include "Transform.h"
 #include "Camera.h"
+#include "Texture2D.h"
+#include <IL/il.h>
+
 
 using namespace std;
 using namespace glm;
@@ -49,11 +52,16 @@ Transform _transform;
 Transform _transform2;
 Camera _camera;
 
+//lo de la textura
+Texture2D myTexture;
+Texture2D base;
+Texture2D cerdo;
+
 //se obtuvo la informacion de #pragma region de: https://msdn.microsoft.com/en-us/library/b6xkz944.aspx
 
 #pragma endregion 
 
-#pragma region Colors Vertex Normals
+#pragma region Colors Vertex Normals TexCoords
 
 vector<vec3> colores()
 {
@@ -163,6 +171,21 @@ vector<vec3> normales()
 	return normals;
 }
 
+vector<vec2> TexCoords()
+{
+	std::vector<glm::vec2> texcoords;
+
+	for (int i = 0;i<6;i++) 
+	{
+		texcoords.push_back(vec2(1.0f, 0.0f));
+		texcoords.push_back(vec2(1.0f, 1.0f));
+		texcoords.push_back(vec2(0.0f, 0.0f));
+		texcoords.push_back(vec2(0.0f, 1.0f));
+	}
+
+	return texcoords;
+}
+
 #pragma endregion 
 
 void Initialize()
@@ -176,11 +199,17 @@ void Initialize()
 	vec3 LightColour = glm::vec3(1.0f, 1.0f, 1.0f);
 	vec3 lSource = glm::vec3(18.0f, 0.0f, 20.0f);
 
+	//textura
+	myTexture.LoadTexture("caja.jpg");
+	base.LoadTexture("base.jpg");
+	cerdo.LoadTexture("crash.png");
+
 	//queremos generar un manager
 	geometria1.CreateMesh((GLint)ULTRA);
 	geometria1.SetPositionAttribute(posiciones(), GL_STATIC_DRAW, 0);
 	geometria1.SetColorAttribute(colores(), GL_STATIC_DRAW, 1);
 	geometria1.SetNormalAttribute(normales(), GL_STATIC_DRAW, 2);
+	geometria1.SetTexCoordAttribute(TexCoords(), GL_STATIC_DRAW, 3);
 	geometria1.SetIndices(indices, GL_STATIC_DRAW);
 
 	//Desactivamos el MNGR 
@@ -195,7 +224,8 @@ void Initialize()
 	sProgram.AttachShader("Default.frag", GL_FRAGMENT_SHADER);
 	sProgram.SetAttribute(0, "VertexPosition");
 	sProgram.SetAttribute(1, "VertexColor");
-	sProgram.SetAttribute(2,  "VertexNormal");
+	sProgram.SetAttribute(2, "VertexNormal");
+	sProgram.SetAttribute(3, "VertexTexCoord");
 
 	//se cheka compatibilidad man
 	sProgram.LinkProgram();
@@ -205,7 +235,8 @@ void Initialize()
 	sProgram.SetUniformf("LightColor", LightColour.x, LightColour.y, LightColour.z);
 	sProgram.SetUniformf("LightPosition", lSource.x, lSource.y, lSource.z);
 	sProgram.SetUniformf("CameraPosition", camaraPos.x, camaraPos.y, camaraPos.z);
-
+	sProgram.SetUniformi("DiffuseTexture", 0);
+	sProgram.SetUniformi("DiffuseTexture2", 1);
 	sProgram.Deactivate();
 
 
@@ -236,21 +267,32 @@ void GameLoop()
 	sProgram.Activate();
 
 	//EGeometria 1
+	glActiveTexture(GL_TEXTURE0);
+	myTexture.Bind();
+	glActiveTexture(GL_TEXTURE1);
+	cerdo.Bind();
 	mat4 matModelo = _transform.GetModelMatrix();
 	mat3 normalMatrix = glm::transpose(glm::inverse(mat3(_transform.GetModelMatrix())));
 	sProgram.SetUniformMatrix("modelMatrix", matModelo);
 	sProgram.SetUniformMatrix3("normalMatrix", normalMatrix);
 	sProgram.SetUniformMatrix("mvpMatrix", _camera.GetViewProjection() * _transform.GetModelMatrix());
 	geometria1.Draw(GL_TRIANGLES);
+	glActiveTexture(GL_TEXTURE0);
+	myTexture.Unbind();
+	glActiveTexture(GL_TEXTURE1);
+	cerdo.Unbind();
 
 	////EGeometria 2
+	glActiveTexture(GL_TEXTURE0);
+	base.Bind();
 	mat4 matModelo2 = _transform2.GetModelMatrix();
 	mat3 normalMatrix2 = glm::transpose(glm::inverse(mat3(_transform2.GetModelMatrix())));
 	sProgram.SetUniformMatrix("modelMatrix", matModelo2);
 	sProgram.SetUniformMatrix3("normalMatrix", normalMatrix2);
 	sProgram.SetUniformMatrix("mvpMatrix", _camera.GetViewProjection() * _transform2.GetModelMatrix());
 	geometria1.Draw(GL_TRIANGLES);
-
+	glActiveTexture(GL_TEXTURE0);
+	base.Unbind();
 	sProgram.Deactivate();
 
 	//Cuando terminamos de renderear, cambiampos buffers
@@ -329,6 +371,22 @@ int main(int argc, char* argv[])
 	//glEnable(GL_CULL_FACE);
 	//No dibujar las caras de atras
 	//glEnable(GL_BACK);
+
+	//-----------------------------------------------------------------
+	// Inicializar DevIL. Esto se debe hacer sólo una vez.
+	ilInit();
+	// Cambiar el punto de origen de las texturas. Por default, DevIL
+	// pone un punto de origen en la esquina superior izquierda.
+	// Esto es compatible con el sistema operativo, pero no con el
+	// funcionamiento de OpenGL. 
+	ilEnable(IL_ORIGIN_SET);
+	// Configurar el punto de origen de las texturas en la esquina 
+	// inferior izquierda
+	ilOriginFunc(IL_ORIGIN_LOWER_LEFT);
+	//-----------------------------------------------------------------
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	//config inicial del programa.
 	Initialize();

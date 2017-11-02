@@ -5,6 +5,8 @@
 #include <vector>
 #include "Mesh.h"
 #include <iostream>
+#include <IL/il.h>
+
 
 using namespace std;
 using namespace glm;
@@ -16,13 +18,14 @@ Autor: A01374526 Jose Karlo Hurtado Corona
 
 Mesh::Mesh()
 {
-	_vertexArrayObject = 0;
+	_vertexArrayObject           = 0;
 	_positionsVertexBufferObject = 0;
-	_colorsVertexBufferObject = 0;
-	_vertexCount = 0;
-	_indicesCount = 0;
-	_indicesBufferObject = 0;
-	_normalVBO = 0;
+	_colorsVertexBufferObject    = 0;
+	_vertexCount                 = 0;
+	_indicesCount                = 0;
+	_indicesBufferObject         = 0;
+	_normalVBO                   = 0;
+	_texCoordsVertexBufferObject = 0;
 }
 
 Mesh::~Mesh()
@@ -64,6 +67,16 @@ void Mesh::SetNormalAttribute(vector<vec3> normals, GLenum usage, GLuint locatio
 	else
 	{
 		SetAttributeData(_normalVBO, sizeof(vec3)*normals.size(), normals.data(), usage, locationIndex, 3);
+	}
+}
+
+void Mesh::SetTexCoordAttribute(vector<vec2> texCoords, GLenum usage, GLuint locationIndex)
+{
+	if (texCoords.empty() || texCoords.size() != _vertexCount)
+	{;}
+	else
+	{
+		SetAttributeData(_texCoordsVertexBufferObject, sizeof(vec2)*texCoords.size(), texCoords.data(), usage, locationIndex, 2);
 	}
 }
 
