@@ -1,6 +1,6 @@
 /*********************************************************
 Materia: Gráficas Computacionales
-Fecha: 26 de Octubre del 2017
+Fecha: 10 de noviembre del 2017
 Autor: A01374526 José Karlo Hurtado Corona
 Autor: A01375051 Marina Fernanda Torres Gomez
 *********************************************************/
@@ -18,6 +18,7 @@ Autor: A01375051 Marina Fernanda Torres Gomez
 #include "Camera.h"
 #include "Texture2D.h"
 #include <IL/il.h>
+#include "Dephtbuffer.h"
 
 
 using namespace std;
@@ -41,21 +42,31 @@ bool d2 = false;
 float MAN = (delta2 / 360) / 2;
 
 //Posicion de la camara
-vec3 camaraPos = vec3(0.0f, 0.0f, 50.0f);
+vec3 camaraPos = vec3(0.0f, 20.0f, 50.0f);
+int CPitch = -20;
+vec3 lPos = glm::vec3(0.0f, 20.0f, 0.0f);
+vec3 camera2Pos = lPos;
+
 
 //declaro shader program y mesh
 ShaderProgram sProgram;
+ShaderProgram sProgram2;
+ShaderProgram sProgram2Texturas;
 Mesh geometria1;
 
 //LO del transform
 Transform _transform;
 Transform _transform2;
 Camera _camera;
+Camera _camera2;
 
 //lo de la textura
 Texture2D myTexture;
 Texture2D base;
 Texture2D cerdo;
+
+//el depth buffer
+Depthbuffer dBuffer;
 
 //se obtuvo la informacion de #pragma region de: https://msdn.microsoft.com/en-us/library/b6xkz944.aspx
 
@@ -197,7 +208,7 @@ void Initialize()
 
 	//Cosas de Luz -------------------------------+------------------+-------
 	vec3 LightColour = glm::vec3(1.0f, 1.0f, 1.0f);
-	vec3 lSource = glm::vec3(18.0f, 0.0f, 20.0f);
+	vec3 lSource = lPos;
 
 	//textura
 	myTexture.LoadTexture("caja.jpg");
@@ -215,13 +226,24 @@ void Initialize()
 	//Desactivamos el MNGR 
 	glBindVertexArray(0);
 
-	sProgram.CreateProgram();
-	
+//-------------------------------------------------------------1
+	sProgram2.CreateProgram();
 
 	//Vertex shader 
 	//-----------------------------------------
-	sProgram.AttachShader("Default.vert", GL_VERTEX_SHADER);
-	sProgram.AttachShader("Default.frag", GL_FRAGMENT_SHADER);
+	sProgram2.AttachShader("Depth.vert", GL_VERTEX_SHADER);
+	sProgram2.AttachShader("Depth.frag", GL_FRAGMENT_SHADER);
+	sProgram2.SetAttribute(0, "VertexPosition");
+	sProgram2.LinkProgram();
+
+//-------------------------------------------------------------1
+
+//-------------------------------------------------------------2
+//Vertex shader 
+	//-----------------------------------------
+	sProgram.CreateProgram();
+	sProgram.AttachShader("Shadow.vert", GL_VERTEX_SHADER);
+	sProgram.AttachShader("Shadow.frag", GL_FRAGMENT_SHADER);
 	sProgram.SetAttribute(0, "VertexPosition");
 	sProgram.SetAttribute(1, "VertexColor");
 	sProgram.SetAttribute(2, "VertexNormal");
@@ -235,14 +257,52 @@ void Initialize()
 	sProgram.SetUniformf("LightColor", LightColour.x, LightColour.y, LightColour.z);
 	sProgram.SetUniformf("LightPosition", lSource.x, lSource.y, lSource.z);
 	sProgram.SetUniformf("CameraPosition", camaraPos.x, camaraPos.y, camaraPos.z);
+	
 	sProgram.SetUniformi("DiffuseTexture", 0);
 	sProgram.SetUniformi("DiffuseTexture2", 1);
-	sProgram.Deactivate();
+	sProgram.SetUniformi("ShadowMap", 2);
 
+	sProgram.Deactivate();
+//-------------------------------------------------------------2
+
+//-------------------------------------------------------------3
+//Vertex shader 
+//-----------------------------------------
+	sProgram2Texturas.CreateProgram();
+	sProgram2Texturas.AttachShader("Shadow2Texturas.vert", GL_VERTEX_SHADER);
+	sProgram2Texturas.AttachShader("Shadow2Texturas.frag", GL_FRAGMENT_SHADER);
+	sProgram2Texturas.SetAttribute(0, "VertexPosition");
+	sProgram2Texturas.SetAttribute(1, "VertexColor");
+	sProgram2Texturas.SetAttribute(2, "VertexNormal");
+	sProgram2Texturas.SetAttribute(3, "VertexTexCoord");
+
+	//se cheka compatibilidad man
+	sProgram2Texturas.LinkProgram();
+
+	sProgram2Texturas.Activate();
+	sProgram2Texturas.SetUniformf("Resolution", 400.0f, 400.0f);
+	sProgram2Texturas.SetUniformf("LightColor", LightColour.x, LightColour.y, LightColour.z);
+	sProgram2Texturas.SetUniformf("LightPosition", lSource.x, lSource.y, lSource.z);
+	sProgram2Texturas.SetUniformf("CameraPosition", camaraPos.x, camaraPos.y, camaraPos.z);
+
+	sProgram2Texturas.SetUniformi("DiffuseTexture", 0);
+	sProgram2Texturas.SetUniformi("DiffuseTexture2", 1);
+	sProgram2Texturas.SetUniformi("ShadowMap", 2);
+
+	sProgram2Texturas.Deactivate();
+	//-------------------------------------------------------------3
+	
 
 #pragma region Transforms
 
 	_camera.SetPosition(camaraPos.x, camaraPos.y, camaraPos.z);
+	//_camera2.SetPosition(camaraPos.x, camaraPos.y, camaraPos.z);
+	_camera2.SetPosition(camera2Pos.x, camera2Pos.y, camera2Pos.z);
+	//_camera2.Yaw(15);
+	_camera2.Pitch(-90);
+	_camera.Pitch(CPitch);
+	_camera2.SetOrtographic(100.0f,1.0f);
+
 	_transform.SetScale(2, 2, 2);
 	_transform.SetRotation(0.0f, 25.0f, 0.0f);
 	_transform2.SetScale(30.0f, 0.5f, 30.0f);
@@ -251,72 +311,86 @@ void Initialize()
 
 #pragma endregion 
 
+	dBuffer.Create(2048);
+
 }
 
 void GameLoop()
 {
-	//Limpiamos el buffer de color y de profundidad
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	if (delta == 360)
-	{
-		delta = 0;
-	}
 	_transform.Rotate(0.05, -0.05f, 0.05f, false);
 
-	sProgram.Activate();
+//1er Render------------------------------------------
+	dBuffer.Bind();
+	//dBuffer.BindDepthMap();
 
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	//G1
+	sProgram2.Activate();
+	mat4 matModelo = _transform.GetModelMatrix();
+	sProgram2.SetUniformMatrix("mvpMatrix", _camera2.GetViewProjection() * matModelo);
+	geometria1.Draw(GL_TRIANGLES);
+	//G2
+	mat4 matModelo2 = _transform2.GetModelMatrix();
+	sProgram2.SetUniformMatrix("mvpMatrix", _camera2.GetViewProjection() * matModelo2);
+
+	geometria1.Draw(GL_TRIANGLES);
+
+	sProgram2.Deactivate();
+
+	//dBuffer.UnbindDepthMap();
+	dBuffer.Unbind();
+	glViewport(0, 0, 400, 400);
+
+//2do Render------------------------------------------
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
+	sProgram2Texturas.Activate();
+	
 	//EGeometria 1
 	glActiveTexture(GL_TEXTURE0);
 	myTexture.Bind();
 	glActiveTexture(GL_TEXTURE1);
 	cerdo.Bind();
-	mat4 matModelo = _transform.GetModelMatrix();
+	glActiveTexture(GL_TEXTURE2);
+	dBuffer.BindDepthMap();
+	mat4 matModelo3 = _transform.GetModelMatrix();
 	mat3 normalMatrix = glm::transpose(glm::inverse(mat3(_transform.GetModelMatrix())));
-	sProgram.SetUniformMatrix("modelMatrix", matModelo);
-	sProgram.SetUniformMatrix3("normalMatrix", normalMatrix);
-	sProgram.SetUniformMatrix("mvpMatrix", _camera.GetViewProjection() * _transform.GetModelMatrix());
+	sProgram2Texturas.SetUniformMatrix("modelMatrix", matModelo3);
+	sProgram2Texturas.SetUniformMatrix3("normalMatrix", normalMatrix);
+	sProgram2Texturas.SetUniformMatrix("mvpMatrix", _camera.GetViewProjection() * _transform.GetModelMatrix());
+	sProgram2Texturas.SetUniformMatrix("LightVPMatrix", _camera2.GetViewProjection());
 	geometria1.Draw(GL_TRIANGLES);
 	glActiveTexture(GL_TEXTURE0);
 	myTexture.Unbind();
 	glActiveTexture(GL_TEXTURE1);
 	cerdo.Unbind();
+	glActiveTexture(GL_TEXTURE2);
+	dBuffer.UnbindDepthMap();
+	sProgram2Texturas.Deactivate();
 
+	sProgram.Activate();
 	////EGeometria 2
 	glActiveTexture(GL_TEXTURE0);
 	base.Bind();
-	mat4 matModelo2 = _transform2.GetModelMatrix();
+	glActiveTexture(GL_TEXTURE2);
+	dBuffer.BindDepthMap();
+	mat4 matModelo21 = _transform2.GetModelMatrix();
 	mat3 normalMatrix2 = glm::transpose(glm::inverse(mat3(_transform2.GetModelMatrix())));
-	sProgram.SetUniformMatrix("modelMatrix", matModelo2);
+	sProgram.SetUniformMatrix("modelMatrix", matModelo21);
 	sProgram.SetUniformMatrix3("normalMatrix", normalMatrix2);
 	sProgram.SetUniformMatrix("mvpMatrix", _camera.GetViewProjection() * _transform2.GetModelMatrix());
+	sProgram.SetUniformMatrix("LightVPMatrix", _camera2.GetViewProjection());
+
 	geometria1.Draw(GL_TRIANGLES);
 	glActiveTexture(GL_TEXTURE0);
 	base.Unbind();
+	glActiveTexture(GL_TEXTURE2);
+	dBuffer.UnbindDepthMap();
 	sProgram.Deactivate();
-
+	
 	//Cuando terminamos de renderear, cambiampos buffers
 	glutSwapBuffers();
-
-	delta += 0.01f;
-	if (delta2 >= 360)
-	{
-		d2 = true;
-	}
-	if (delta2 <= -180)
-	{
-		d2 = false;
-	}
-
-	if (d2 == true)
-	{
-		delta2 -= 0.1f;
-	}
-	else
-	{
-		delta2 += 0.1f;
-	}
-	MAN = (delta2 / 360) / 2;
 }
 
 void ReshapeWindow(int width, int height)

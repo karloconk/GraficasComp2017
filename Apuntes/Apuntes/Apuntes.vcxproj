@@ -120,6 +120,7 @@
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Circle.cpp" />
+    <ClCompile Include="Dephtbuffer.cpp" />
     <ClCompile Include="Employee.cpp" />
     <ClCompile Include="InputFile.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -132,6 +133,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Dephtbuffer.h" />
     <ClInclude Include="ShaderProgram.h" />
     <ClInclude Include="Circle.h" />
     <ClInclude Include="Employee.h" />
@@ -145,8 +147,14 @@
   <ItemGroup>
     <None Include="Default.frag" />
     <None Include="Default.vert" />
+    <None Include="Depth.frag" />
+    <None Include="Depth.vert" />
     <None Include="DiscardCenter.frag" />
     <None Include="DiscardCenter.vert" />
+    <None Include="Shadow.frag" />
+    <None Include="Shadow.vert" />
+    <None Include="Shadow2Texturas.frag" />
+    <None Include="Shadow2Texturas.vert" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="base.jpg" />
