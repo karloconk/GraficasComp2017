@@ -1,6 +1,5 @@
 ﻿C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(387,5): warning MSB8028: The intermediate directory (Debug\) contains files shared from another project (Apuntes.vcxproj).  This can lead to incorrect clean and rebuild behavior.
   Main.cpp
-c:\users\808kh\documents\github\graficascomp2017\apuntes\apuntes\main.cpp(303): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\808kh\documents\github\graficascomp2017\apuntes\apuntes\main.cpp(320): warning C4305: 'argument': truncation from 'double' to 'float'
+c:\users\808kh\documents\github\graficascomp2017\apuntes\apuntes\main.cpp(365): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
   Apuntes.vcxproj -> C:\Users\808kh\Documents\GitHub\GraficasComp2017\Apuntes\Debug\ApunteClase2.exe
   Apuntes.vcxproj -> C:\Users\808kh\Documents\GitHub\GraficasComp2017\Apuntes\Debug\ApunteClase2.pdb (Partial PDB)

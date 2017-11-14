@@ -37,9 +37,13 @@ int ULTRA = g *6;
 //animacion
 float vertsPerFrame = 0.0f;
 float delta = 0.0f;
+float deltaM = -15.0f;
+float deltaA = -30.0f;
 float delta2 = 0.0f;
 bool d2 = false;
 float MAN = (delta2 / 360) / 2;
+int Turbo = 130;
+
 
 //Posicion de la camara
 vec3 camaraPos = vec3(0.0f, 20.0f, 50.0f);
@@ -53,12 +57,22 @@ ShaderProgram sProgram;
 ShaderProgram sProgram2;
 ShaderProgram sProgram2Texturas;
 Mesh geometria1;
+Mesh geometriaDedos;
 
 //LO del transform
 Transform _transform;
 Transform _transform2;
 Camera _camera;
 Camera _camera2;
+//Los dedos
+Transform PPhalanx;
+Transform PMeta;
+Transform IPhalanx;
+Transform IMeta;
+Transform MPhalanx;
+Transform MMeta;
+Transform APhalanx;
+Transform AMeta;
 
 //lo de la textura
 Texture2D myTexture;
@@ -110,38 +124,77 @@ vector<vec3> colores()
 
 vector<vec3> posiciones()
 {
-	//Esto es un CUBO
+	//Esto es un palma
 	std::vector<glm::vec3> positions;
 	//adelante
-	positions.push_back(vec3(3.0f, -3.0f, 3.0f));
-	positions.push_back(vec3(3.0f, 3.0f, 3.0f));
-	positions.push_back(vec3(-3.0f, -3.0f, 3.0f));
-	positions.push_back(vec3(-3.0f, 3.0f, 3.0f));
+	positions.push_back(vec3(3.0f*2.0f, -3.0f*3.5f, 3.0f*0.5f));
+	positions.push_back(vec3(3.0f*2.0f, 3.0f*3.5f, 3.0f*0.5f));
+	positions.push_back(vec3(-3.0f*2.0f, -3.0f*3.5f, 3.0f*0.5f));
+	positions.push_back(vec3(-3.0f*2.0f, 3.0f*3.5f, 3.0f*0.5f));
 	//atras
-	positions.push_back(vec3(3.0f, -3.0f, -3.0f));
-	positions.push_back(vec3(3.0f, 3.0f, -3.0f));
-	positions.push_back(vec3(-3.0f, -3.0f, -3.0f));
-	positions.push_back(vec3(-3.0f, 3.0f, -3.0f));
+	positions.push_back(vec3(3.0f*2.0f, -3.0f*3.5f, -3.0f*0.5f));
+	positions.push_back(vec3(3.0f*2.0f, 3.0f*3.5f, -3.0f*0.5f));
+	positions.push_back(vec3(-3.0f*2.0f, -3.0f*3.5f, -3.0f*0.5f));
+	positions.push_back(vec3(-3.0f*2.0f, 3.0f*3.5f, -3.0f*0.5f));
 	//Derecha
-	positions.push_back(vec3(3.0f, -3.0f, -3.0f));
-	positions.push_back(vec3(3.0f, 3.0f, -3.0f));
-	positions.push_back(vec3(3.0f, -3.0f, 3.0f));
-	positions.push_back(vec3(3.0f, 3.0f, 3.0f));
+	positions.push_back(vec3(3.0f*2.0f, -3.0f*3.5f, -3.0f*0.5f));
+	positions.push_back(vec3(3.0f*2.0f, 3.0f*3.5f, -3.0f*0.5f));
+	positions.push_back(vec3(3.0f*2.0f, -3.0f*3.5f, 3.0f*0.5f));
+	positions.push_back(vec3(3.0f*2.0f, 3.0f*3.5f, 3.0f*0.5f));
 	//izq
-	positions.push_back(vec3(-3.0f, -3.0f, -3.0f));
-	positions.push_back(vec3(-3.0f, 3.0f, -3.0f));
-	positions.push_back(vec3(-3.0f, -3.0f, 3.0f));
-	positions.push_back(vec3(-3.0f, 3.0f, 3.0f));
+	positions.push_back(vec3(-3.0f*2.0f, -3.0f*3.5f, -3.0f*0.5f));
+	positions.push_back(vec3(-3.0f*2.0f, 3.0f*3.5f, -3.0f*0.5f));
+	positions.push_back(vec3(-3.0f*2.0f, -3.0f*3.5f, 3.0f*0.5f));
+	positions.push_back(vec3(-3.0f*2.0f, 3.0f*3.5f, 3.0f*0.5f));
 	//arriba
-	positions.push_back(vec3(3.0f, 3.0f, 3.0f));
-	positions.push_back(vec3(3.0f, 3.0f, -3.0f));
-	positions.push_back(vec3(-3.0f, 3.0f, 3.0f));
-	positions.push_back(vec3(-3.0f, 3.0f, -3.0f));
+	positions.push_back(vec3(3.0f*2.0f, 3.0f*3.5f, 3.0f*0.5f));
+	positions.push_back(vec3(3.0f*2.0f, 3.0f*3.5f, -3.0f*0.5f));
+	positions.push_back(vec3(-3.0f*2.0f, 3.0f*3.5f, 3.0f*0.5f));
+	positions.push_back(vec3(-3.0f*2.0f, 3.0f*3.5f, -3.0f*0.5f));
 	//abajo
-	positions.push_back(vec3(3.0f, -3.0f, 3.0f));
-	positions.push_back(vec3(3.0f, -3.0f, -3.0f));
-	positions.push_back(vec3(-3.0f, -3.0f, 3.0f));
-	positions.push_back(vec3(-3.0f, -3.0f, -3.0f));
+	positions.push_back(vec3(3.0f*2.0f, -3.0f*3.5f, 3.0f*0.5f));
+	positions.push_back(vec3(3.0f*2.0f, -3.0f*3.5f, -3.0f*0.5f));
+	positions.push_back(vec3(-3.0f*2.0f, -3.0f*3.5f, 3.0f*0.5f));
+	positions.push_back(vec3(-3.0f*2.0f, -3.0f*3.5f, -3.0f*0.5f));
+
+	return positions;
+}
+
+vector<vec3> posicionesDedos()
+{
+	//Esto es una falange
+
+	std::vector<glm::vec3> positions;
+	//adelante
+	positions.push_back(vec3(3.0f*0.5f, -3.0f*0.8f, 3.0f*0.3f));
+	positions.push_back(vec3(3.0f*0.5f, 3.0f*0.8f, 3.0f*0.3f));
+	positions.push_back(vec3(-3.0f*0.5f, -3.0f*0.8f, 3.0f*0.3f));
+	positions.push_back(vec3(-3.0f*0.5f, 3.0f*0.8f, 3.0f*0.3f));
+	//atras
+	positions.push_back(vec3(3.0f*0.5f, -3.0f*0.8f, -3.0f*0.3f));
+	positions.push_back(vec3(3.0f*0.5f, 3.0f*0.8f, -3.0f*0.3f));
+	positions.push_back(vec3(-3.0f*0.5f, -3.0f*0.8f, -3.0f*0.3f));
+	positions.push_back(vec3(-3.0f*0.5f, 3.0f*0.8f, -3.0f*0.3f));
+	//Derecha
+	positions.push_back(vec3(3.0f*0.5f, -3.0f*0.8f, -3.0f*0.3f));
+	positions.push_back(vec3(3.0f*0.5f, 3.0f*0.8f, -3.0f*0.3f));
+	positions.push_back(vec3(3.0f*0.5f, -3.0f*0.8f, 3.0f*0.3f));
+	positions.push_back(vec3(3.0f*0.5f, 3.0f*0.8f, 3.0f*0.3f));
+	//izq
+	positions.push_back(vec3(-3.0f*0.5f, -3.0f*0.8f, -3.0f*0.3f));
+	positions.push_back(vec3(-3.0f*0.5f, 3.0f*0.8f, -3.0f*0.3f));
+	positions.push_back(vec3(-3.0f*0.5f, -3.0f*0.8f, 3.0f*0.3f));
+	positions.push_back(vec3(-3.0f*0.5f, 3.0f*0.8f, 3.0f*0.3f));
+	//arriba
+	positions.push_back(vec3(3.0f*0.5f, 3.0f*0.8f, 3.0f*0.3f));
+	positions.push_back(vec3(3.0f*0.5f, 3.0f*0.8f, -3.0f*0.3f));
+	positions.push_back(vec3(-3.0f*0.5f, 3.0f*0.8f, 3.0f*0.3f));
+	positions.push_back(vec3(-3.0f*0.5f, 3.0f*0.8f, -3.0f*0.3f));
+	//abajo
+	positions.push_back(vec3(3.0f*0.5f, -3.0f*0.8f, 3.0f*0.3f));
+	positions.push_back(vec3(3.0f*0.5f, -3.0f*0.8f, -3.0f*0.3f));
+	positions.push_back(vec3(-3.0f*0.5f, -3.0f*0.8f, 3.0f*0.3f));
+	positions.push_back(vec3(-3.0f*0.5f, -3.0f*0.8f, -3.0f*0.3f));
 
 	return positions;
 }
@@ -226,6 +279,17 @@ void Initialize()
 	//Desactivamos el MNGR 
 	glBindVertexArray(0);
 
+	//queremos generar otro manager
+	geometriaDedos.CreateMesh((GLint)ULTRA);
+	geometriaDedos.SetPositionAttribute(posicionesDedos(), GL_STATIC_DRAW, 0);
+	geometriaDedos.SetColorAttribute(colores(), GL_STATIC_DRAW, 1);
+	geometriaDedos.SetNormalAttribute(normales(), GL_STATIC_DRAW, 2);
+	geometriaDedos.SetTexCoordAttribute(TexCoords(), GL_STATIC_DRAW, 3);
+	geometriaDedos.SetIndices(indices, GL_STATIC_DRAW);
+
+	//Desactivamos el MNGR 
+	glBindVertexArray(0);
+
 //-------------------------------------------------------------1
 	sProgram2.CreateProgram();
 
@@ -296,28 +360,233 @@ void Initialize()
 #pragma region Transforms
 
 	_camera.SetPosition(camaraPos.x, camaraPos.y, camaraPos.z);
-	//_camera2.SetPosition(camaraPos.x, camaraPos.y, camaraPos.z);
 	_camera2.SetPosition(camera2Pos.x, camera2Pos.y, camera2Pos.z);
-	//_camera2.Yaw(15);
 	_camera2.Pitch(-90);
 	_camera.Pitch(CPitch);
 	_camera2.SetOrtographic(100.0f,1.0f);
 
-	_transform.SetScale(2, 2, 2);
-	_transform.SetRotation(0.0f, 25.0f, 0.0f);
+	_transform.SetRotation(-45.0f,0.0f, 0.0f);
 	_transform2.SetScale(30.0f, 0.5f, 30.0f);
 	_transform2.SetPosition(0.0f, -15.0f, 0.0f);
 	_transform2.SetRotation(0.0f, 0.0f, 0.0f);
 
+	PPhalanx.SetPosition(10.0f, -6.0f, 0.0f);
+	PMeta.SetPosition(0.0f, 6.0f, 0.0f);
+	IPhalanx.SetPosition(0.0f,	14.0f, 0.0f);
+	IMeta.SetPosition(0.0f, 6.0f, 0.0f);
+	MPhalanx.SetPosition(-4.5f, 14.0f, 0.0f);
+	MMeta.SetPosition(0.0f, 6.0f, 0.0f);
+	APhalanx.SetPosition(4.5f, 14.0f, 0.0f);
+	AMeta.SetPosition(0.0f, 6.0f, 0.0f);
+
+	PPhalanx.SetRotation( 0.0f, 0.0f, -70.0f);
+
 #pragma endregion 
 
 	dBuffer.Create(2048);
-
 }
+
+#pragma region MoverCosas
+
+//Pulgar-------------------------------------------------
+void moverPulgar2()
+{
+	 if (delta < Turbo * 2)
+	{
+		PMeta.Rotate(0.04f, 0.0f, 0.0f, false);
+		PMeta.MoveForward(0.0025f, false);
+	}
+	else if (delta > Turbo * 3 && delta < Turbo * 4)
+	{
+		PMeta.Rotate(-0.08f, 0.0f, 0.0f, false);
+		PMeta.MoveForward(-0.005f, false);
+	}
+	else
+	{
+		PMeta.Rotate(0.0f, 0.0f, 0.0f, false);
+		PMeta.MoveForward(0.00f, false);
+	}
+}
+
+void moverPulgar() 
+{
+	if (delta < Turbo)
+	{
+		PPhalanx.Rotate(0.05f, 0.0f, 0.0f, false);
+		PPhalanx.MoveForward(0.005f, false);
+	}
+	else if (delta < Turbo *3 && delta > Turbo)
+	{
+		PPhalanx.Rotate(0.0f, 0.0f, 0.0f, false);
+		PPhalanx.MoveForward(0.00f, false);
+	}
+	else if (delta > Turbo * 3 && delta < Turbo*4)
+	{
+		PPhalanx.Rotate(-0.05f, 0.0f, 0.0f, false);
+		PPhalanx.MoveForward(-0.005f, false);
+	}
+	else 
+	{
+		PPhalanx.Rotate(0.0f, 0.0f, 0.0f, false);
+		PPhalanx.MoveForward(0.00f, false);
+	}
+	moverPulgar2();
+}
+
+//Medio-------------------------------------------------
+void moverIndice2()
+{
+	if (deltaM < Turbo * 2 && deltaM > 0.0f)
+	{
+		IMeta.Rotate(0.04f, 0.0f, 0.0f, false);
+		IMeta.MoveForward(0.0025f, false);
+	}
+	else if (deltaM > Turbo * 3  && deltaM < (Turbo * 4))
+	{
+		IMeta.Rotate(-0.08f, 0.0f, 0.0f, false);
+		IMeta.MoveForward(-0.005f, false);
+	}
+	else
+	{
+		IMeta.Rotate(0.0f, 0.0f, 0.0f, false);
+		IMeta.MoveForward(0.00f, false);
+	}
+}
+
+void moverIndice()
+{
+	if (deltaM < Turbo && deltaM > 0.0f)
+	{
+		IPhalanx.Rotate(0.05f, 0.0f, 0.0f, false);
+		IPhalanx.MoveForward(0.005f, false);
+	}
+	else if (deltaM < Turbo * 3 && deltaM > Turbo)
+	{
+		IPhalanx.Rotate(0.0f, 0.0f, 0.0f, false);
+		IPhalanx.MoveForward(0.00f, false);
+	}
+	else if (deltaM > Turbo * 3 && deltaM < Turbo * 4)
+	{
+		IPhalanx.Rotate(-0.05f, 0.0f, 0.0f, false);
+		IPhalanx.MoveForward(-0.005f, false);
+	}
+	else
+	{
+		IPhalanx.Rotate(0.0f, 0.0f, 0.0f, false);
+		IPhalanx.MoveForward(0.00f, false);
+	}
+	moverIndice2();
+}
+
+//Anular-------------------------------------------------
+void moverMedio2()
+{
+	if (deltaA < Turbo *2 && deltaA > 0.0f)
+	{
+		MMeta.Rotate(0.04f, 0.0f, 0.0f, false);
+		MMeta.MoveForward(0.0025f, false);
+	}
+	else if (deltaA > Turbo * 3 && deltaA < (Turbo * 4) )
+	{
+		MMeta.Rotate(-0.08f, 0.0f, 0.0f, false);
+		MMeta.MoveForward(-0.005f, false);
+	}
+	else
+	{
+		MMeta.Rotate(0.0f, 0.0f, 0.0f, false);
+		MMeta.MoveForward(0.00f, false);
+	}
+}
+
+void moverMedio()
+{
+	if (deltaA < Turbo && deltaA > 0.0f)
+	{
+		MPhalanx.Rotate(0.05f, 0.0f, 0.0f, false);
+		MPhalanx.MoveForward(0.005f, false);
+	}
+	else if (deltaA < Turbo * 3 && deltaA > Turbo)
+	{
+		MPhalanx.Rotate(0.0f, 0.0f, 0.0f, false);
+		MPhalanx.MoveForward(0.00f, false);
+	}
+	else if (deltaA > Turbo * 3 && deltaA < Turbo * 4)
+	{
+		MPhalanx.Rotate(-0.05f, 0.0f, 0.0f, false);
+		MPhalanx.MoveForward(-0.005f, false);
+	}
+	else
+	{
+		MPhalanx.Rotate(0.0f, 0.0f, 0.0f, false);
+		MPhalanx.MoveForward(0.00f, false);
+	}
+	moverMedio2();
+}
+
+//Indice-------------------------------------------------
+void moverAnular2()
+{
+	if (delta < Turbo * 2)
+	{
+		AMeta.Rotate(0.04f, 0.0f, 0.0f, false);
+		AMeta.MoveForward(0.0025f, false);
+	}
+	else if (delta > Turbo * 3 && delta < Turbo * 4)
+	{
+		AMeta.Rotate(-0.08f, 0.0f, 0.0f, false);
+		AMeta.MoveForward(-0.005f, false);
+	}
+	else
+	{
+		AMeta.Rotate(0.0f, 0.0f, 0.0f, false);
+		AMeta.MoveForward(0.00f, false);
+	}
+}
+
+void moverAnular()
+{
+	if (delta < Turbo)
+	{
+		APhalanx.Rotate(0.05f, 0.0f, 0.0f, false);
+		APhalanx.MoveForward(0.005f, false);
+	}
+	else if (delta < Turbo * 3 && delta > Turbo)
+	{
+		APhalanx.Rotate(0.0f, 0.0f, 0.0f, false);
+		APhalanx.MoveForward(0.00f, false);
+	}
+	else if (delta > Turbo * 3 && delta < Turbo * 4)
+	{
+		APhalanx.Rotate(-0.05f, 0.0f, 0.0f, false);
+		APhalanx.MoveForward(-0.005f, false);
+	}
+	else
+	{
+		APhalanx.Rotate(0.0f, 0.0f, 0.0f, false);
+		APhalanx.MoveForward(0.00f, false);
+	}
+	moverAnular2();
+}
+
+#pragma endregion 
 
 void GameLoop()
 {
-	_transform.Rotate(0.05, -0.05f, 0.05f, false);
+	if (delta >= Turbo*5)
+	{
+		delta = 0;
+		deltaM = -15;
+		deltaA = -30;
+	}
+
+	//TRANSFORMS 
+	_transform.Rotate( 0.0, -0.02f, 0.0f, true);
+	//DEDOS------------------------------------------------
+	moverPulgar();
+	moverIndice();
+	moverMedio();
+	moverAnular();
+	//------------------------------------------------
 
 //1er Render------------------------------------------
 	dBuffer.Bind();
@@ -325,19 +594,57 @@ void GameLoop()
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	//G1
+	//Palma 
 	sProgram2.Activate();
 	mat4 matModelo = _transform.GetModelMatrix();
 	sProgram2.SetUniformMatrix("mvpMatrix", _camera2.GetViewProjection() * matModelo);
 	geometria1.Draw(GL_TRIANGLES);
-	//G2
+	//base
 	mat4 matModelo2 = _transform2.GetModelMatrix();
 	sProgram2.SetUniformMatrix("mvpMatrix", _camera2.GetViewProjection() * matModelo2);
-
 	geometria1.Draw(GL_TRIANGLES);
 
-	sProgram2.Deactivate();
+#pragma region dedos
 
+	//Pulgar posterior 
+	matModelo2 = PPhalanx.GetModelMatrix();
+	sProgram2.SetUniformMatrix("mvpMatrix", _camera2.GetViewProjection() * matModelo * matModelo2);
+	geometriaDedos.Draw(GL_TRIANGLES);
+	//pulgar anterior
+	mat4 matModelo22 = PMeta.GetModelMatrix();
+	sProgram2.SetUniformMatrix("mvpMatrix", _camera2.GetViewProjection()  * matModelo * matModelo2 * matModelo22);
+	geometriaDedos.Draw(GL_TRIANGLES);
+
+	//indice posterior
+	mat4 mat4Modelo2 = IPhalanx.GetModelMatrix();
+	sProgram2.SetUniformMatrix("mvpMatrix", _camera2.GetViewProjection() * matModelo * mat4Modelo2);
+	geometriaDedos.Draw(GL_TRIANGLES);
+	//indice anterior
+	matModelo2 = IMeta.GetModelMatrix();
+	sProgram2.SetUniformMatrix("mvpMatrix", _camera2.GetViewProjection() * matModelo * mat4Modelo2 * matModelo2);
+	geometriaDedos.Draw(GL_TRIANGLES);
+
+	//medio posteriror
+	 mat4Modelo2 = MPhalanx.GetModelMatrix();
+	sProgram2.SetUniformMatrix("mvpMatrix", _camera2.GetViewProjection() * matModelo * mat4Modelo2);
+	geometriaDedos.Draw(GL_TRIANGLES);
+	//medio anterior
+	matModelo2 = MMeta.GetModelMatrix();
+	sProgram2.SetUniformMatrix("mvpMatrix", _camera2.GetViewProjection() * matModelo * mat4Modelo2 * matModelo2);
+	geometriaDedos.Draw(GL_TRIANGLES);
+
+	//anular posterior
+	 mat4Modelo2 = APhalanx.GetModelMatrix();
+	sProgram2.SetUniformMatrix("mvpMatrix", _camera2.GetViewProjection() * matModelo * mat4Modelo2);
+	geometriaDedos.Draw(GL_TRIANGLES);
+	//anular anterior
+	matModelo2 = AMeta.GetModelMatrix();
+	sProgram2.SetUniformMatrix("mvpMatrix", _camera2.GetViewProjection() * matModelo * mat4Modelo2 * matModelo2);
+	geometriaDedos.Draw(GL_TRIANGLES);
+
+#pragma endregion 
+
+	sProgram2.Deactivate();
 	//dBuffer.UnbindDepthMap();
 	dBuffer.Unbind();
 	glViewport(0, 0, 400, 400);
@@ -388,9 +695,168 @@ void GameLoop()
 	glActiveTexture(GL_TEXTURE2);
 	dBuffer.UnbindDepthMap();
 	sProgram.Deactivate();
+
+#pragma region DEDOS2
+
+	//Pulgar posterior 
+	sProgram.Activate();
+	glActiveTexture(GL_TEXTURE0);
+	myTexture.Bind();
+	glActiveTexture(GL_TEXTURE2);
+	dBuffer.BindDepthMap();
+	mat4 matModeloPul = matModelo3 * PPhalanx.GetModelMatrix();
+	 normalMatrix2 = glm::transpose(glm::inverse(mat3(matModelo3 * PPhalanx.GetModelMatrix())));
+	sProgram.SetUniformMatrix("modelMatrix", matModeloPul);
+	sProgram.SetUniformMatrix3("normalMatrix", normalMatrix2);
+	sProgram.SetUniformMatrix("mvpMatrix", _camera.GetViewProjection() * matModelo3 * PPhalanx.GetModelMatrix());
+	sProgram.SetUniformMatrix("LightVPMatrix", _camera2.GetViewProjection());
+	geometriaDedos.Draw(GL_TRIANGLES);
+	glActiveTexture(GL_TEXTURE0);
+	myTexture.Unbind();
+	glActiveTexture(GL_TEXTURE2);
+	dBuffer.UnbindDepthMap();
+	sProgram.Deactivate();
+
+	//pulgar anterior
+	sProgram.Activate();
+	glActiveTexture(GL_TEXTURE0);
+	myTexture.Bind();
+	glActiveTexture(GL_TEXTURE2);
+	dBuffer.BindDepthMap();
+	 matModelo21 = matModeloPul * PMeta.GetModelMatrix();
+	 normalMatrix2 = glm::transpose(glm::inverse(mat3(matModeloPul * PMeta.GetModelMatrix())));
+	sProgram.SetUniformMatrix("modelMatrix", matModelo21);
+	sProgram.SetUniformMatrix3("normalMatrix", normalMatrix2);
+	sProgram.SetUniformMatrix("mvpMatrix", _camera.GetViewProjection() * matModeloPul * PMeta.GetModelMatrix());
+	sProgram.SetUniformMatrix("LightVPMatrix", _camera2.GetViewProjection());
+	geometriaDedos.Draw(GL_TRIANGLES);
+	glActiveTexture(GL_TEXTURE0);
+	myTexture.Unbind();
+	glActiveTexture(GL_TEXTURE2);
+	dBuffer.UnbindDepthMap();
+	sProgram.Deactivate();
+
+	//indice posterior
+	sProgram.Activate();
+	glActiveTexture(GL_TEXTURE0);
+	myTexture.Bind();
+	glActiveTexture(GL_TEXTURE2);
+	dBuffer.BindDepthMap();
+	mat4 matModelo210 = matModelo3 * IPhalanx.GetModelMatrix();
+	 normalMatrix2 = glm::transpose(glm::inverse(mat3(matModelo3 * IPhalanx.GetModelMatrix())));
+	sProgram.SetUniformMatrix("modelMatrix", matModelo210);
+	sProgram.SetUniformMatrix3("normalMatrix", normalMatrix2);
+	sProgram.SetUniformMatrix("mvpMatrix", _camera.GetViewProjection() * matModelo3 * IPhalanx.GetModelMatrix());
+	sProgram.SetUniformMatrix("LightVPMatrix", _camera2.GetViewProjection());
+	geometriaDedos.Draw(GL_TRIANGLES);
+	glActiveTexture(GL_TEXTURE0);
+	myTexture.Unbind();
+	glActiveTexture(GL_TEXTURE2);
+	dBuffer.UnbindDepthMap();
+	sProgram.Deactivate();
+
+	//indice anterior
+	sProgram.Activate();
+	glActiveTexture(GL_TEXTURE0);
+	myTexture.Bind();
+	glActiveTexture(GL_TEXTURE2);
+	dBuffer.BindDepthMap();
+	 matModelo21 = matModelo210 * IMeta.GetModelMatrix();
+	 normalMatrix2 = glm::transpose(glm::inverse(mat3(matModelo210 * IMeta.GetModelMatrix())));
+	sProgram.SetUniformMatrix("modelMatrix", matModelo21);
+	sProgram.SetUniformMatrix3("normalMatrix", normalMatrix2);
+	sProgram.SetUniformMatrix("mvpMatrix", _camera.GetViewProjection() * matModelo210 *  IMeta.GetModelMatrix());
+	sProgram.SetUniformMatrix("LightVPMatrix", _camera2.GetViewProjection());
+	geometriaDedos.Draw(GL_TRIANGLES);
+	glActiveTexture(GL_TEXTURE0);
+	myTexture.Unbind();
+	glActiveTexture(GL_TEXTURE2);
+	dBuffer.UnbindDepthMap();
+	sProgram.Deactivate();
+
+	//medio posteriror
+	sProgram.Activate();
+	glActiveTexture(GL_TEXTURE0);
+	myTexture.Bind();
+	glActiveTexture(GL_TEXTURE2);
+	dBuffer.BindDepthMap();
+	mat4  matModo21 = matModelo3 * MPhalanx.GetModelMatrix();
+	 normalMatrix2 = glm::transpose(glm::inverse(mat3(matModelo3 * MPhalanx.GetModelMatrix())));
+	sProgram.SetUniformMatrix("modelMatrix", matModo21);
+	sProgram.SetUniformMatrix3("normalMatrix", normalMatrix2);
+	sProgram.SetUniformMatrix("mvpMatrix", _camera.GetViewProjection() *matModelo3 *  MPhalanx.GetModelMatrix());
+	sProgram.SetUniformMatrix("LightVPMatrix", _camera2.GetViewProjection());
+	geometriaDedos.Draw(GL_TRIANGLES);
+	glActiveTexture(GL_TEXTURE0);
+	myTexture.Unbind();
+	glActiveTexture(GL_TEXTURE2);
+	dBuffer.UnbindDepthMap();
+	sProgram.Deactivate();
+
+	//medio anterior
+	sProgram.Activate();
+	glActiveTexture(GL_TEXTURE0);
+	myTexture.Bind();
+	glActiveTexture(GL_TEXTURE2);
+	dBuffer.BindDepthMap();
+	 matModelo21 = matModo21 * MMeta.GetModelMatrix();
+	 normalMatrix2 = glm::transpose(glm::inverse(mat3(matModo21 * MMeta.GetModelMatrix())));
+	sProgram.SetUniformMatrix("modelMatrix", matModelo21);
+	sProgram.SetUniformMatrix3("normalMatrix", normalMatrix2);
+	sProgram.SetUniformMatrix("mvpMatrix", _camera.GetViewProjection() *matModo21 *  MMeta.GetModelMatrix());
+	sProgram.SetUniformMatrix("LightVPMatrix", _camera2.GetViewProjection());
+	geometriaDedos.Draw(GL_TRIANGLES);
+	glActiveTexture(GL_TEXTURE0);
+	myTexture.Unbind();
+	glActiveTexture(GL_TEXTURE2);
+	dBuffer.UnbindDepthMap();
+	sProgram.Deactivate();
+
+	//anular posteriror
+	sProgram.Activate();
+	glActiveTexture(GL_TEXTURE0);
+	myTexture.Bind();
+	glActiveTexture(GL_TEXTURE2);
+	dBuffer.BindDepthMap();
+	 mat4 matModelo214 = matModelo3 * APhalanx.GetModelMatrix();
+	 normalMatrix2 = glm::transpose(glm::inverse(mat3(matModelo3 * APhalanx.GetModelMatrix())));
+	sProgram.SetUniformMatrix("modelMatrix", matModelo214);
+	sProgram.SetUniformMatrix3("normalMatrix", normalMatrix2);
+	sProgram.SetUniformMatrix("mvpMatrix", _camera.GetViewProjection() * matModelo3 * APhalanx.GetModelMatrix());
+	sProgram.SetUniformMatrix("LightVPMatrix", _camera2.GetViewProjection());
+	geometriaDedos.Draw(GL_TRIANGLES);
+	glActiveTexture(GL_TEXTURE0);
+	myTexture.Unbind();
+	glActiveTexture(GL_TEXTURE2);
+	dBuffer.UnbindDepthMap();
+	sProgram.Deactivate();
+
+	//anular anterior
+	sProgram.Activate();
+	glActiveTexture(GL_TEXTURE0);
+	myTexture.Bind();
+	glActiveTexture(GL_TEXTURE2);
+	dBuffer.BindDepthMap();
+	 matModelo21 = matModelo214 * AMeta.GetModelMatrix();
+	 normalMatrix2 = glm::transpose(glm::inverse(mat3(matModelo214 * AMeta.GetModelMatrix())));
+	sProgram.SetUniformMatrix("modelMatrix", matModelo21);
+	sProgram.SetUniformMatrix3("normalMatrix", normalMatrix2);
+	sProgram.SetUniformMatrix("mvpMatrix", _camera.GetViewProjection() * matModelo214 * AMeta.GetModelMatrix());
+	sProgram.SetUniformMatrix("LightVPMatrix", _camera2.GetViewProjection());
+	geometriaDedos.Draw(GL_TRIANGLES);
+	glActiveTexture(GL_TEXTURE0);
+	myTexture.Unbind();
+	glActiveTexture(GL_TEXTURE2);
+	dBuffer.UnbindDepthMap();
+	sProgram.Deactivate();
+
+#pragma endregion
 	
 	//Cuando terminamos de renderear, cambiampos buffers
 	glutSwapBuffers();
+	delta += 0.1f;
+	deltaM += 0.1f;
+	deltaA += 0.1f;
 }
 
 void ReshapeWindow(int width, int height)
