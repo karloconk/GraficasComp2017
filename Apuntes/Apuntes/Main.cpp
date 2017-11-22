@@ -1,6 +1,6 @@
 /*********************************************************
 Materia: Gráficas Computacionales
-Fecha: 10 de noviembre del 2017
+Fecha: 24 de noviembre del 2017
 Autor: A01374526 José Karlo Hurtado Corona
 Autor: A01375051 Marina Fernanda Torres Gomez
 *********************************************************/
