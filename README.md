@@ -1,2 +1,3 @@
-# GraficasComp2017
-Para usarse en le curso de graficas computacionales
+# Graficas Computacionales
+
+* Repo for projects made in the computational graphics course
