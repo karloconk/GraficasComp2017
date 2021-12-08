@@ -1,3 +1,13 @@
-# Graficas Computacionales
+# 💻 Computational Graphics
 
-* Repo for projects made in the computational graphics course
+## 🔮 About
+
+* This repo is for developing the course-long project of the Computational Graphics course (made in C++).
+
+## 💔 Known Issues
+
+* None.
+
+## 🧐 Special Notices:
+
+* None.
